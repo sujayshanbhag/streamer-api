@@ -4,6 +4,7 @@ import com.example.demo.exception.CustomS3Exception;
 import com.example.demo.exception.FileException;
 import com.example.demo.service.S3Service;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +34,7 @@ public class S3ServiceImpl implements S3Service {
     private final static long EXPIRATION_MILI = 900_000; // 15 minutes
 
 
+    @Autowired
     public S3ServiceImpl(
             @Value("${aws.s3.access-key}") String accessKey,
             @Value("${aws.s3.secret-key}") String secretKey,
