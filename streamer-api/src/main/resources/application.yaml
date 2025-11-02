@@ -1,12 +1,22 @@
+jwt:
+  secret: &jwt-secret 81655831894877659963357094989595
+  key-id: my-key-id
+
 spring:
   application:
-    name: stramer-api
+    name: streamer-api
   datasource:
     url: jdbc:h2:mem:testdb
     driver-class-name: org.h2.Driver
     username: sa
     password:
   h2.console.enabled: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret: *jwt-secret
+
 
 management:
   endpoints:
