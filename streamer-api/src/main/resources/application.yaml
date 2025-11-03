@@ -17,6 +17,11 @@ spring:
         jwt:
           secret: *jwt-secret
 
+bypass:
+  urls:
+    - /auth/**
+    - /actuator/**
+
 
 management:
   endpoints:

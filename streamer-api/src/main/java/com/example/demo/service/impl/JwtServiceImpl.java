@@ -30,7 +30,7 @@ public class JwtServiceImpl implements JwtService{
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuedAt(now)
-                .expiresAt(now.plusSeconds(30))
+                .expiresAt(now.plusSeconds(60))
                 .subject(username)
                 .claim("scope", scopes)
                 .claim("ver", version)
