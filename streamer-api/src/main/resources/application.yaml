@@ -22,6 +22,10 @@ bypass:
     - /auth/**
     - /actuator/**
 
+oauth:
+  google:
+    client-id: ${GOOGLE_CLIENT_ID}
+
 
 management:
   endpoints:
