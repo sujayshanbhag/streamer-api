@@ -40,7 +40,7 @@ public class GoogleAuthenticationStrategy extends BaseAuthenticationStrategy<Goo
             String name = (String) payload.get("name");
             String email = payload.getEmail();
 
-            return new AuthenticationResult.Builder()
+            return AuthenticationResult.builder()
                     .name(name)
                     .email(email)
                     .build();

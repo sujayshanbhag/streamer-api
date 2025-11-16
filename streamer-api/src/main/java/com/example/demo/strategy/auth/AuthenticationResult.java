@@ -12,6 +12,10 @@ public class AuthenticationResult {
     private final AuthenticationStatus status;
     private final String message;
 
+    public static AuthenticationResult.Builder builder() {
+        return new Builder();
+    }
+
     private AuthenticationResult(Builder builder) {
         this.name = builder.name;
         this.email = builder.email;
@@ -29,6 +33,10 @@ public class AuthenticationResult {
     }
 
     public static class Builder {
+
+        private Builder () {
+
+        }
         private String name;
         private String email;
         private String phoneNumber;
@@ -64,8 +72,9 @@ public class AuthenticationResult {
         }
 
         public AuthenticationResult build() {
-            if (this.email == null || this.email.isEmpty()) {
-                return failed("Email not found");
+            if (this.status == AuthenticationStatus.SUCCESS && (this.email == null || this.email.isEmpty())) {
+                this.status = AuthenticationStatus.FAILED;
+                this.message = "Email not found";
             }
             return new AuthenticationResult(this);
         }
