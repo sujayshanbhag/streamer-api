@@ -1,6 +1,7 @@
 package com.example.demo.strategy.auth.google;
 
 
+import com.example.demo.constant.AuthenticationStatus;
 import com.example.demo.strategy.auth.AuthenticationResult;
 import com.example.demo.strategy.auth.BaseAuthenticationStrategy;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -10,8 +11,6 @@ import com.google.api.client.json.gson.GsonFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Collections;
 
 @Service
@@ -43,6 +42,7 @@ public class GoogleAuthenticationStrategy extends BaseAuthenticationStrategy<Goo
             return AuthenticationResult.builder()
                     .name(name)
                     .email(email)
+                    .status(AuthenticationStatus.SUCCESS)
                     .build();
 
         } catch (Exception e) {
