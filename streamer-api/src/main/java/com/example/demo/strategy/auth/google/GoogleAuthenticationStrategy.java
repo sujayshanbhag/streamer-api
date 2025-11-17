@@ -45,8 +45,9 @@ public class GoogleAuthenticationStrategy extends BaseAuthenticationStrategy<Goo
                     .email(email)
                     .build();
 
-        } catch (GeneralSecurityException | IOException e) {
-            return AuthenticationResult.failed("Google auth failed");
+        } catch (Exception e) {
+            return AuthenticationResult.failed("Unknown Google auth error");
+
         }
     }
 }

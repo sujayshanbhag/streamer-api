@@ -36,22 +36,23 @@ public class JwtTokenValidationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
-        boolean isAuthorized = false;
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
-            String username = jwt.getSubject();
+            Long userId = Long.valueOf(jwt.getSubject());
             String version = jwt.getClaimAsString("ver");
 
-            isAuthorized = userAuthorizationService.validate(Long.valueOf(username), version);
-        }
+            if (!userAuthorizationService.isUserActive(userId)) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.getWriter().write("Forbidden user");
+                return;
+            }
 
-        if (!isAuthorized) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Unauthorized - token invalid");
-            return;
+            if (!userAuthorizationService.validate(userId, version)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Unauthorized - token invalid");
+                return;
+            }
         }
 
         filterChain.doFilter(request, response);

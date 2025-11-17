@@ -29,6 +29,13 @@ public class UserAuthorizationServiceImpl implements UserAuthorizationService {
     }
 
     @Override
+    public boolean isUserActive(Long userId) {
+        return userRepository.findById(userId)
+                .map(User::getIsActive)
+                .orElse(false);
+    }
+
+    @Override
     public boolean validate(Long userId, String version) {
         Optional<User> optionalUser = userRepository.findById(userId);
         if(optionalUser.isPresent()) {

@@ -3,6 +3,7 @@ package com.example.demo.model.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,15 +16,24 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(nullable = false)
+    @Column
     private String name;
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Column
+    private String phoneNumber;
 
     @Column(nullable = false)
     private String version;
 
+    @Column
+    private Boolean isActive;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
-    private List<UserPermission> permissions;
+    private List<UserPermission> permissions  = new ArrayList<>();;
 
     @PrePersist
     @PreUpdate
