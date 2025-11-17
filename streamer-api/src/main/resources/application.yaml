@@ -25,6 +25,8 @@ bypass:
 oauth:
   google:
     client-id: ${GOOGLE_CLIENT_ID}
+  github:
+    client-id: ${GITHUB_CLIENT_ID}
 
 
 management:
