@@ -1,5 +1,5 @@
 jwt:
-  secret: &jwt-secret 81655831894877659963357094989595
+  secret: &jwt-secret ${JWT_SECRET}
   key-id: my-key-id
 
 spring:
