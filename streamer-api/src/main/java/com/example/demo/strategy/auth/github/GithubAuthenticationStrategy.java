@@ -21,11 +21,15 @@ public class GithubAuthenticationStrategy extends BaseAuthenticationStrategy<Git
         super(GithubAuthenticationInput.class);
     }
 
+    protected GitHub createGithubClient(String token) throws IOException {
+        return new GitHubBuilder().withOAuthToken(token, clientId).build();
+    }
+
     @Override
     public AuthenticationResult authenticate(GithubAuthenticationInput input) {
         try {
             String token = input.getToken();
-            GitHub github = new GitHubBuilder().withOAuthToken(token, clientId).build();
+            GitHub github = createGithubClient(token);
 
             GHUser user = github.getMyself();
 
