@@ -4,10 +4,10 @@ import com.courage.streamer.api.constant.AuthenticationStatus;
 import com.courage.streamer.api.constant.AuthenticationType;
 import com.courage.streamer.api.exception.AuthenticationException;
 import com.courage.streamer.api.exception.ForbiddenException;
+import com.courage.streamer.api.model.dto.TokenResponseDto;
 import com.courage.streamer.api.model.entity.User;
+import com.courage.streamer.api.service.JwtService;
 import com.courage.streamer.api.service.UserService;
-import com.courage.streamer.api.service.impl.AuthenticationServiceImpl;
-import com.courage.streamer.api.service.impl.UserAuthorizationServiceImpl;
 import com.courage.streamer.api.strategy.auth.AuthenticationResult;
 import com.courage.streamer.api.strategy.auth.AuthenticationStrategy;
 import com.courage.streamer.api.strategy.auth.AuthenticationStrategyProvider;
@@ -28,12 +28,15 @@ class AuthenticationServiceImplTest {
     private UserAuthorizationServiceImpl userAuthorizationService;
     private AuthenticationServiceImpl authenticationService;
 
+    private JwtService jwtService;
+
     @BeforeEach
     void setUp() {
         strategyProvider = mock(AuthenticationStrategyProvider.class);
         userService = mock(UserService.class);
         userAuthorizationService = Mockito.mock(UserAuthorizationServiceImpl.class);
-        authenticationService = new AuthenticationServiceImpl(strategyProvider, userService, userAuthorizationService);
+        jwtService = mock(JwtService.class);
+        authenticationService = new AuthenticationServiceImpl(strategyProvider, userService, jwtService, userAuthorizationService);
     }
 
     @Test
@@ -48,16 +51,20 @@ class AuthenticationServiceImplTest {
                 .build();
         User user = new User();
         user.setId(1L);
+        TokenResponseDto mockTokens = TokenResponseDto.builder()
+                        .accessToken("accessToken")
+                        .refreshToken("refreshToken")
+                        .build();
 
         when(request.getType()).thenReturn(AuthenticationType.OTP);
         when(strategyProvider.getStrategy(AuthenticationType.OTP)).thenReturn(strategy);
         when(strategy.validateAndAuthenticate(request)).thenReturn(result);
         when(userService.createUser(result)).thenReturn(user);
-        when(userAuthorizationService.authorize(user)).thenReturn("mockToken");
+        when(userAuthorizationService.authorize(user)).thenReturn(mockTokens);
 
-        String token = authenticationService.register(request);
+        TokenResponseDto token = authenticationService.register(request);
 
-        assertEquals("mockToken", token);
+        assertEquals(mockTokens, token);
         verify(strategyProvider).getStrategy(AuthenticationType.OTP);
         verify(strategy).validateAndAuthenticate(request);
         verify(userService).createUser(result);
@@ -92,16 +99,22 @@ class AuthenticationServiceImplTest {
                 .build();
         User user = new User();
         user.setIsActive(true);
+        TokenResponseDto mockTokens = TokenResponseDto.builder()
+                .accessToken("accessToken")
+                .refreshToken("refreshToken")
+                .build();
 
         when(request.getType()).thenReturn(AuthenticationType.OTP);
         when(strategyProvider.getStrategy(AuthenticationType.OTP)).thenReturn(strategy);
         when(strategy.validateAndAuthenticate(request)).thenReturn(result);
         when(userService.findByEmail("john.doe@example.com")).thenReturn(Optional.of(user));
-        when(userAuthorizationService.authorize(user)).thenReturn("mockToken");
 
-        String token = authenticationService.login(request);
+        when(userAuthorizationService.authorize(user)).thenReturn(mockTokens);
 
-        assertEquals("mockToken", token);
+
+        TokenResponseDto token = authenticationService.login(request);
+
+        assertEquals(mockTokens, token);
         verify(strategyProvider).getStrategy(AuthenticationType.OTP);
         verify(strategy).validateAndAuthenticate(request);
         verify(userService).findByEmail("john.doe@example.com");

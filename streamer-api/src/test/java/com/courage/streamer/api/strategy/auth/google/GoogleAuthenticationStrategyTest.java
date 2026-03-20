@@ -70,6 +70,6 @@ class GoogleAuthenticationStrategyTest {
         AuthenticationResult result = strategy.authenticate(input);
 
         assertEquals(AuthenticationStatus.FAILED, result.getStatus());
-        assertEquals("Unknown Google auth error", result.getMessage());
+        assertEquals("Unknown Google auth error: Verification error", result.getMessage());
     }
 }

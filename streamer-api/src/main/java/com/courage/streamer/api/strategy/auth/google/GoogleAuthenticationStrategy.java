@@ -46,7 +46,7 @@ public class GoogleAuthenticationStrategy extends BaseAuthenticationStrategy<Goo
                     .build();
 
         } catch (Exception e) {
-            return AuthenticationResult.failed("Unknown Google auth error");
+            return AuthenticationResult.failed("Unknown Google auth error: "+ e.getMessage());
 
         }
     }

@@ -1,11 +1,11 @@
 package com.courage.streamer.api.service.impl;
 
+import com.courage.streamer.api.model.dto.TokenResponseDto;
 import com.courage.streamer.api.model.entity.User;
 import com.courage.streamer.api.model.entity.UserPermission;
 import com.courage.streamer.api.model.enums.PermissionType;
 import com.courage.streamer.api.repository.UserRepository;
 import com.courage.streamer.api.service.JwtService;
-import com.courage.streamer.api.service.impl.UserAuthorizationServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -38,11 +38,12 @@ class UserAuthorizationServiceImplTest {
         user.setVersion("1");
         user.setPermissions(List.of(userPermission));
 
+
         when(jwtService.generateToken(anyString(), anyList(), anyString())).thenReturn("mockToken");
 
-        String token = userAuthorizationService.authorize(user);
+        TokenResponseDto token = userAuthorizationService.authorize(user);
 
-        assertEquals("mockToken", token);
+        assertEquals("mockToken", token.getAccessToken());
         verify(jwtService).generateToken("1", List.of("VIEWER"), "1");
     }
 
@@ -55,9 +56,9 @@ class UserAuthorizationServiceImplTest {
 
         when(jwtService.generateToken("1", Collections.emptyList(), "1")).thenReturn("mockToken");
 
-        String token = userAuthorizationService.authorize(user);
+        TokenResponseDto token = userAuthorizationService.authorize(user);
 
-        assertEquals("mockToken", token);
+        assertEquals("mockToken", token.getAccessToken());
         verify(jwtService).generateToken("1", Collections.emptyList(), "1");
     }
 

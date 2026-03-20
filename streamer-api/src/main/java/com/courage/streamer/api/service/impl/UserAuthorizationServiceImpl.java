@@ -1,5 +1,8 @@
 package com.courage.streamer.api.service.impl;
 
+import com.courage.streamer.api.exception.AuthenticationException;
+import com.courage.streamer.api.exception.ForbiddenException;
+import com.courage.streamer.api.model.dto.TokenResponseDto;
 import com.courage.streamer.api.model.entity.User;
 import com.courage.streamer.api.repository.UserRepository;
 import com.courage.streamer.api.service.JwtService;
@@ -21,11 +24,16 @@ public class UserAuthorizationServiceImpl implements UserAuthorizationService {
     }
 
     @Override
-    public String authorize(User user) {
+    public TokenResponseDto authorize(User user) {
         List<String> scopes = user.getPermissions().stream()
                                   .map((permission) -> permission.getType().toString())
                                   .toList();
-        return jwtService.generateToken(user.getId().toString(), scopes, user.getVersion());
+        String accessToken = jwtService.generateToken(user.getId().toString(), scopes, user.getVersion());
+        String refreshToken = jwtService.generateRefreshToken(user.getId().toString());
+        return TokenResponseDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 
     @Override
@@ -43,6 +51,36 @@ public class UserAuthorizationServiceImpl implements UserAuthorizationService {
             return user.getVersion().equals(version);
         }
         return false;
+    }
+
+    @Override
+    public boolean validateRefreshToken(String refreshToken) {
+        return jwtService.validateRefreshToken(refreshToken);
+    }
+
+    @Override
+    public TokenResponseDto refreshToken(String refreshToken) {
+        if (!jwtService.validateRefreshToken(refreshToken)) {
+            throw new AuthenticationException("Invalid or expired refresh token");
+        }
+
+        String userId = jwtService.extractUserIdFromRefreshToken(refreshToken);
+        User user = userRepository.findById(Long.valueOf(userId))
+                .orElseThrow(() -> new AuthenticationException("User not found"));
+
+        if (!user.getIsActive()) {
+            throw new ForbiddenException("Forbidden user");
+        }
+
+        List<String> scopes = user.getPermissions().stream()
+                .map(permission -> permission.getType().toString())
+                .toList();
+        String accessToken = jwtService.generateToken(user.getId().toString(), scopes, user.getVersion());
+
+        return TokenResponseDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken) // Return the same refresh token
+                .build();
     }
 }
 

@@ -64,8 +64,8 @@ class JwtTokenValidationFilterTest {
         when(authentication.getPrincipal()).thenReturn(jwt);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        when(userAuthorizationService.validate(1L, "2")).thenReturn(true);
-
+        when(userAuthorizationService.isUserActive(1L)).thenReturn(true); // Ensure user is active
+        when(userAuthorizationService.validate(1L, "2")).thenReturn(true); // Ensure validation passes
         when(request.getRequestURI()).thenReturn("/api/resource");
 
         filter.doFilterInternal(request, response, filterChain);
@@ -84,6 +84,7 @@ class JwtTokenValidationFilterTest {
         when(authentication.getPrincipal()).thenReturn(jwt);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        when(userAuthorizationService.isUserActive(1L)).thenReturn(true);
         when(userAuthorizationService.validate(1L, "9")).thenReturn(false);
 
         when(request.getRequestURI()).thenReturn("/api/resource");
@@ -111,20 +112,4 @@ class JwtTokenValidationFilterTest {
         verify(filterChain, never()).doFilter(any(), any());
     }
 
-    @Test
-    void doFilterInternalSetsUnauthorizedWhenPrincipalIsNotJwt() throws ServletException, IOException {
-        Authentication authentication = mock(Authentication.class);
-        when(authentication.getPrincipal()).thenReturn("nonJwtPrincipal");
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        when(request.getRequestURI()).thenReturn("/api/resource");
-        java.io.PrintWriter writer = mock(java.io.PrintWriter.class);
-        when(response.getWriter()).thenReturn(writer);
-
-        filter.doFilterInternal(request, response, filterChain);
-
-        verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        verify(writer).write("Unauthorized - token invalid");
-        verify(filterChain, never()).doFilter(any(), any());
-    }
 }

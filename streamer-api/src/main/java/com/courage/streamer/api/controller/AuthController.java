@@ -1,40 +1,38 @@
 package com.courage.streamer.api.controller;
 
 
+import com.courage.streamer.api.model.dto.RefreshTokenDto;
+import com.courage.streamer.api.model.dto.TokenResponseDto;
 import com.courage.streamer.api.service.impl.AuthenticationServiceImpl;
 import com.courage.streamer.api.strategy.auth.Verifiable;
-import com.courage.streamer.api.repository.UserRepository;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
     private final AuthenticationServiceImpl authService;
-    private final UserRepository userRepository;
 
-    public AuthController(AuthenticationServiceImpl authService, UserRepository userRepository) {
+    public AuthController(AuthenticationServiceImpl authService) {
         this.authService = authService;
-        this.userRepository = userRepository;
     }
 
     @PostMapping("/register")
-    public String register(@RequestBody Verifiable input) {
+    public TokenResponseDto register(@RequestBody Verifiable input) {
        return authService.register(input);
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody Verifiable input) {
+    public TokenResponseDto login(@RequestBody Verifiable input) {
         return authService.login(input);
     }
 
-    @PostMapping("/test")
-    public String test(@RequestBody Verifiable input) {
-        userRepository.findAll().forEach(user -> {
-            user.setIsActive(false);
-            userRepository.save(user);
-        });
-        return "Test completed";
+    @PostMapping("/refresh")
+    public TokenResponseDto refresh(@RequestBody RefreshTokenDto refreshToken) {
+        return authService.refresh(refreshToken.getRefreshToken());
     }
+
 
 }

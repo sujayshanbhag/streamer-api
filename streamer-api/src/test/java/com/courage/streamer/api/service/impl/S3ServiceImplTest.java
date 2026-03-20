@@ -1,11 +1,15 @@
 package com.courage.streamer.api.service.impl;
 
+import com.courage.streamer.api.context.UserContext;
 import com.courage.streamer.api.exception.CustomS3Exception;
 import com.courage.streamer.api.exception.FileException;
+import com.courage.streamer.api.model.entity.User;
 import com.courage.streamer.api.service.impl.S3ServiceImpl;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -38,10 +42,27 @@ class S3ServiceImplTest {
     @Mock
     private MultipartFile multipartFile;
 
+    private MockedStatic<UserContext> mockedUserContext;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         s3Service = new S3ServiceImpl(s3Client, s3Presigner, "bucket-name");
+
+        // Mock UserContext to return a valid User
+        User mockUser = mock(User.class);
+        when(mockUser.getEmail()).thenReturn("test@example.com");
+
+        // Use the class-level mockedUserContext
+        mockedUserContext = mockStatic(UserContext.class);
+        mockedUserContext.when(UserContext::getCurrentUser).thenReturn(mockUser);
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (mockedUserContext != null) {
+            mockedUserContext.close();
+        }
     }
 
     @Test

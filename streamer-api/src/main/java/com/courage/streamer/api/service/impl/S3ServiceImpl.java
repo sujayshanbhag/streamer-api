@@ -1,7 +1,9 @@
 package com.courage.streamer.api.service.impl;
 
+import com.courage.streamer.api.context.UserContext;
 import com.courage.streamer.api.exception.CustomS3Exception;
 import com.courage.streamer.api.exception.FileException;
+import com.courage.streamer.api.model.entity.User;
 import com.courage.streamer.api.service.S3Service;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,8 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
+import java.time.Instant;
+import java.util.UUID;
 
 @AllArgsConstructor
 @Service
@@ -94,7 +98,10 @@ public class S3ServiceImpl implements S3Service {
         try {
             PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(builder -> builder
                     .signatureDuration(Duration.ofMillis(EXPIRATION_MILI))
-                    .putObjectRequest(por -> por.bucket(bucketName).key(key)));
+                    .putObjectRequest(por -> por
+                            .bucket(bucketName)
+                            .key(key)
+                            .contentType("video/mp4")));
             return presignedRequest.url().toString();
         } catch (Exception e) {
             throw new CustomS3Exception("Failed to generate presigned URL: " + e.getMessage(), e);
@@ -102,8 +109,10 @@ public class S3ServiceImpl implements S3Service {
     }
 
     private String generateKey(String fileName) {
-        String timestamp = java.time.LocalDateTime.now()
-                .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:ss"));
-        return fileName + "-" + timestamp;
+        User user = UserContext.getCurrentUser();
+        String uuid = UUID.randomUUID().toString();
+        long timestamp = Instant.now().toEpochMilli();
+        String sanitized = fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
+        return "uploads/" + user.getEmail() + "_" + uuid + "_" + timestamp + "_" + sanitized;
     }
 }
