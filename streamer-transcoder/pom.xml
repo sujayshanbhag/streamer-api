@@ -17,6 +17,18 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.awspring.cloud</groupId>
+                <artifactId>spring-cloud-aws-dependencies</artifactId>
+                <version>3.4.1</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
     <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -28,6 +40,30 @@
         <artifactId>spring-boot-starter-test</artifactId>
         <scope>test</scope>
     </dependency>
+
+    <dependency>
+        <groupId>io.awspring.cloud</groupId>
+        <artifactId>spring-cloud-aws-sqs</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>io.awspring.cloud</groupId>
+        <artifactId>spring-cloud-aws-starter-s3</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>net.bramp.ffmpeg</groupId>
+        <artifactId>ffmpeg</artifactId>
+        <version>0.8.0</version>
+    </dependency>
+
+    <dependency>
+        <groupId>io.lindstrom</groupId>
+        <artifactId>m3u8-parser</artifactId>
+        <version>0.28</version>
+    </dependency>
+
+
     </dependencies>
 
 </project>

@@ -1,9 +1,29 @@
 spring:
+  cloud:
+     aws:
+       credentials:
+         access-key: ${AWS_ACCESS_KEY}
+         secret-key: ${AWS_SECRET_KEY}
+       region:
+         static: ${AWS_REGION}
+       s3:
+         bucket: ${S3_BUCKET_NAME}
+       sqs:
+         queue-url: ${SQS_URL}
   application:
     name: streamer-api
   datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  h2.console.enabled: true
+    url: jdbc:postgresql://postgres-db:5432/tinyflix
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+
+# application-local.properties
+ffmpeg.path: C:/ffmpeg-8.1-essentials_build/bin/ffmpeg.exe
+ffprobe.path: C:/ffmpeg-8.1-essentials_build/bin/ffprobe.exe
+
+
+
+logging:
+  level:
+    io.awspring.cloud.sqs: DEBUG
