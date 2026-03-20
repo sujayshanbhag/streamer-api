@@ -1,4 +1,4 @@
-package com.courage.streamer.api.model.enums;
+package com.courage.streamer.common.exception.enums;
 
 public enum PermissionType {
     VIEWER,

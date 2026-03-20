@@ -1,8 +1,8 @@
 package com.courage.streamer.api.filter;
 
 import com.courage.streamer.api.context.UserContext;
-import com.courage.streamer.api.model.entity.User;
 import com.courage.streamer.api.service.UserService;
+import com.courage.streamer.common.entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

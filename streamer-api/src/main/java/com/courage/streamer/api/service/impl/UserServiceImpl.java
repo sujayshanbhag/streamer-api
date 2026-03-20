@@ -2,10 +2,10 @@ package com.courage.streamer.api.service.impl;
 
 import com.courage.streamer.api.strategy.auth.AuthenticationResult;
 import com.courage.streamer.api.exception.AuthenticationException;
-import com.courage.streamer.api.model.entity.User;
-import com.courage.streamer.api.model.entity.UserPermission;
-import com.courage.streamer.api.model.enums.PermissionType;
-import com.courage.streamer.api.repository.UserRepository;
+import com.courage.streamer.common.entity.User;
+import com.courage.streamer.common.entity.UserPermission;
+import com.courage.streamer.common.exception.enums.PermissionType;
+import com.courage.streamer.common.repository.UserRepository;
 import com.courage.streamer.api.service.UserService;
 import org.springframework.stereotype.Service;
 

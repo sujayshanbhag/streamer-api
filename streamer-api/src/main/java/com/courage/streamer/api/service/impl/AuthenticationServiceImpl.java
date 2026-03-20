@@ -9,10 +9,10 @@ import com.courage.streamer.api.strategy.auth.AuthenticationStrategy;
 import com.courage.streamer.api.strategy.auth.Verifiable;
 import com.courage.streamer.api.exception.AuthenticationException;
 import com.courage.streamer.api.exception.ForbiddenException;
-import com.courage.streamer.api.model.entity.User;
 import com.courage.streamer.api.service.AuthenticationService;
 import com.courage.streamer.api.service.UserService;
 import com.courage.streamer.api.strategy.auth.AuthenticationStrategyProvider;
+import com.courage.streamer.common.entity.User;
 import org.springframework.stereotype.Service;
 
 @Service

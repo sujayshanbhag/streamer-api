@@ -1,7 +1,7 @@
 package com.courage.streamer.api.service;
 
 import com.courage.streamer.api.strategy.auth.AuthenticationResult;
-import com.courage.streamer.api.model.entity.User;
+import com.courage.streamer.common.entity.User;
 
 import java.util.Optional;
 

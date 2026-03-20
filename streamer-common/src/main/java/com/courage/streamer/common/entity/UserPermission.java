@@ -1,6 +1,6 @@
-package com.courage.streamer.api.model.entity;
+package com.courage.streamer.common.entity;
 
-import com.courage.streamer.api.model.enums.PermissionType;
+import com.courage.streamer.common.exception.enums.PermissionType;
 import jakarta.persistence.*;
 import lombok.Data;
 

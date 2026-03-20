@@ -1,4 +1,4 @@
-package com.courage.streamer.api.model.entity;
+package com.courage.streamer.common.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

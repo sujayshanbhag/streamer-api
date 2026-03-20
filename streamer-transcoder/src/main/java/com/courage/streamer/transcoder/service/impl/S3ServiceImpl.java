@@ -1,8 +1,7 @@
 package com.courage.streamer.transcoder.service.impl;
 
-import com.courage.streamer.transcoder.exception.CustomS3Exception;
+import com.courage.streamer.common.exception.CustomS3Exception;
 import com.courage.streamer.transcoder.service.S3Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;

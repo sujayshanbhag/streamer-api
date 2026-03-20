@@ -1,8 +1,8 @@
 package com.courage.streamer.api.filter;
 
 import com.courage.streamer.api.context.UserContext;
-import com.courage.streamer.api.model.entity.User;
 import com.courage.streamer.api.service.UserService;
+import com.courage.streamer.common.entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,7 +16,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class UserContextFilterTest {

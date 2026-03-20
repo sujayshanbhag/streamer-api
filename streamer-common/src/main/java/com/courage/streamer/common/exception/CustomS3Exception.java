@@ -1,4 +1,4 @@
-package com.courage.streamer.transcoder.exception;
+package com.courage.streamer.common.exception;
 
 public class CustomS3Exception extends RuntimeException {
     public CustomS3Exception(String message) {

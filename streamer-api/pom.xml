@@ -10,7 +10,7 @@
     </parent>
     <artifactId>streamer-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>video-api</name>
+    <name>streamer-api</name>
     <description>API for Streaming application</description>
     <url/>
     <licenses>
@@ -104,7 +104,14 @@
         <dependency>
             <groupId>org.kohsuke</groupId>
             <artifactId>github-api</artifactId>
-            <version>1.330</version> </dependency>
+            <version>1.330</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.courage</groupId>
+            <artifactId>streamer-common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
 

@@ -15,6 +15,7 @@
     <modules>
         <module>streamer-api</module>
         <module>streamer-transcoder</module>
+        <module>streamer-common</module>
     </modules>
 
     <dependencyManagement>
