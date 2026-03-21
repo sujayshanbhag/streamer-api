@@ -1,13 +1,12 @@
 package com.courage.streamer.api.controller;
 
-
-import com.courage.streamer.api.model.dto.RefreshTokenDto;
-import com.courage.streamer.api.model.dto.TokenResponseDto;
+import com.courage.streamer.api.dto.RefreshTokenDto;
 import com.courage.streamer.api.service.impl.AuthenticationServiceImpl;
 import com.courage.streamer.api.strategy.auth.Verifiable;
+import com.courage.streamer.api.dto.TokenResponseDto;
+
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 
 
 @RestController

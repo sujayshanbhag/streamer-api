@@ -1,6 +1,6 @@
 package com.courage.streamer.api.service;
 
-import com.courage.streamer.api.model.dto.TokenResponseDto;
+import com.courage.streamer.api.dto.TokenResponseDto;
 import com.courage.streamer.api.strategy.auth.Verifiable;
 
 public interface AuthenticationService {

@@ -2,9 +2,9 @@ package com.courage.streamer.api.service.impl;
 
 import com.courage.streamer.api.constant.AuthenticationStatus;
 import com.courage.streamer.api.constant.AuthenticationType;
+import com.courage.streamer.api.dto.TokenResponseDto;
 import com.courage.streamer.api.exception.AuthenticationException;
 import com.courage.streamer.api.exception.ForbiddenException;
-import com.courage.streamer.api.model.dto.TokenResponseDto;
 import com.courage.streamer.api.service.JwtService;
 import com.courage.streamer.api.service.UserService;
 import com.courage.streamer.api.strategy.auth.AuthenticationResult;

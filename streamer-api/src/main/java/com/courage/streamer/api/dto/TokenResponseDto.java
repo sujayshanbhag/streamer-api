@@ -1,4 +1,4 @@
-package com.courage.streamer.api.model.dto;
+package com.courage.streamer.api.dto;
 
 import lombok.Builder;
 import lombok.Getter;

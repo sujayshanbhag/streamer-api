@@ -1,8 +1,8 @@
 package com.courage.streamer.api.service.impl;
 
+import com.courage.streamer.api.dto.TokenResponseDto;
 import com.courage.streamer.api.exception.AuthenticationException;
 import com.courage.streamer.api.exception.ForbiddenException;
-import com.courage.streamer.api.model.dto.TokenResponseDto;
 import com.courage.streamer.common.entity.User;
 import com.courage.streamer.common.repository.UserRepository;
 import com.courage.streamer.api.service.JwtService;

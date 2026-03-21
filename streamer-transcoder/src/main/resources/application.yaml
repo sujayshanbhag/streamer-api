@@ -27,6 +27,11 @@ spring:
 ffmpeg.path: C:/ffmpeg-8.1-essentials_build/bin/ffmpeg.exe
 ffprobe.path: C:/ffmpeg-8.1-essentials_build/bin/ffprobe.exe
 
+sqs:
+  transcoder:
+    queue-url: ${SQS_TRANSCODER_URL}
+    max-retry: ${MAX_RETRY}
+
 
 
 logging:

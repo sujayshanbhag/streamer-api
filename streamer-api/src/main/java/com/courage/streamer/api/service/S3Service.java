@@ -1,11 +1,7 @@
 package com.courage.streamer.api.service;
 
-
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
+import java.util.UUID;
 
 public interface S3Service {
-    void uploadFile(MultipartFile file);
-    String generatePresignedUrl(String fileName);
+    String generatePresignedUrl(UUID uuid, String fileName);
 }

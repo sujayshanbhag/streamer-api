@@ -2,7 +2,7 @@ package com.courage.streamer.api.service.impl;
 
 import com.courage.streamer.api.constant.AuthenticationStatus;
 import com.courage.streamer.api.constant.AuthenticationType;
-import com.courage.streamer.api.model.dto.TokenResponseDto;
+import com.courage.streamer.api.dto.TokenResponseDto;
 import com.courage.streamer.api.service.JwtService;
 import com.courage.streamer.api.strategy.auth.AuthenticationResult;
 import com.courage.streamer.api.strategy.auth.AuthenticationStrategy;

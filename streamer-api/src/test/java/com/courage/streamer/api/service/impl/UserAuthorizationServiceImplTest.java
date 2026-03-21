@@ -1,7 +1,6 @@
 package com.courage.streamer.api.service.impl;
 
-import com.courage.streamer.api.model.dto.TokenResponseDto;
-
+import com.courage.streamer.api.dto.TokenResponseDto;
 import com.courage.streamer.common.entity.User;
 import com.courage.streamer.common.entity.UserPermission;
 import com.courage.streamer.common.exception.enums.PermissionType;

@@ -23,6 +23,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -65,48 +66,6 @@ class S3ServiceImplTest {
     }
 
     @Test
-    void testUploadFile_Success() throws IOException {
-        // Arrange
-        File tempFile = Files.createTempFile("test-file", ".txt").toFile();
-        when(multipartFile.getOriginalFilename()).thenReturn("test-file.txt");
-        doAnswer(invocation -> {
-            File file = invocation.getArgument(0);
-            Files.write(file.toPath(), "test content".getBytes());
-            return null;
-        }).when(multipartFile).transferTo(any(File.class));
-
-        // Act & Assert
-        assertDoesNotThrow(() -> s3Service.uploadFile(multipartFile));
-        tempFile.deleteOnExit();
-    }
-
-    @Test
-    void testUploadFile_IOException() throws IOException {
-        // Arrange
-        when(multipartFile.getOriginalFilename()).thenReturn("test-file.txt");
-        doThrow(new IOException("File transfer failed")).when(multipartFile).transferTo(any(File.class));
-
-        // Act & Assert
-        FileException exception = assertThrows(FileException.class, () -> s3Service.uploadFile(multipartFile));
-        assertEquals("Failed to upload file to S3: File transfer failed", exception.getMessage());
-    }
-
-    @Test
-    void testUploadFile_S3Exception() throws IOException {
-        // Arrange
-        when(multipartFile.getOriginalFilename()).thenReturn("test-file.txt");
-        doNothing().when(multipartFile).transferTo(any(File.class));
-        doThrow(software.amazon.awssdk.services.s3.model.S3Exception.builder()
-                .message("S3 error")
-                .build())
-                .when(s3Client).putObject(any(PutObjectRequest.class), any(java.nio.file.Path.class));
-
-        // Act & Assert
-        CustomS3Exception exception = assertThrows(CustomS3Exception.class, () -> s3Service.uploadFile(multipartFile));
-        assertTrue(exception.getMessage().contains("Failed to upload file to S3"));
-    }
-
-    @Test
     void testGeneratePresignedUrl_Success() throws MalformedURLException, URISyntaxException {
         PresignedPutObjectRequest presignedRequest = mock(PresignedPutObjectRequest.class);
         when(presignedRequest.url()).thenReturn(new URI("http://example.com").toURL());
@@ -115,12 +74,10 @@ class S3ServiceImplTest {
                 (Consumer<PutObjectPresignRequest.Builder>) any(Consumer.class)))
                 .thenReturn(presignedRequest);
 
-        String url = s3Service.generatePresignedUrl("test-file.txt");
+        String url = s3Service.generatePresignedUrl(UUID.randomUUID(), "test.mp4");
 
         assertEquals("http://example.com", url);
     }
-
-
 
     @Test
     void testGeneratePresignedUrl_Exception() {
@@ -128,7 +85,7 @@ class S3ServiceImplTest {
         doThrow(new RuntimeException("Presign error"))
                 .when(s3Presigner).presignPutObject(any(PutObjectPresignRequest.class));
         // Act & Assert
-        CustomS3Exception exception = assertThrows(CustomS3Exception.class, () -> s3Service.generatePresignedUrl("test-file.txt"));
+        CustomS3Exception exception = assertThrows(CustomS3Exception.class, () -> s3Service.generatePresignedUrl(UUID.randomUUID(), "test.mp4"));
         assertTrue(exception.getMessage().contains("Failed to generate presigned URL"));
     }
 }
