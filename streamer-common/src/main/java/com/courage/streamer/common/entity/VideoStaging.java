@@ -17,8 +17,8 @@ public class VideoStaging {
     @Id
     private UUID id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "created_by", nullable = false)
+    private Long createdBy;
 
     @Column(nullable = false)
     private String title;

@@ -1,8 +1,12 @@
 package com.courage.streamer.api.service;
 
-import com.courage.streamer.api.dto.VideoRequestDto;
-import com.courage.streamer.api.dto.VideoResponseDto;
+import com.courage.streamer.api.dto.UploadRequestDto;
+import com.courage.streamer.api.dto.UploadResponseDto;
+import com.courage.streamer.api.dto.VideoPageResponse;
+
 
 public interface VideoService {
-    VideoResponseDto initiateUpload(VideoRequestDto request);
+    UploadResponseDto initiateUpload(UploadRequestDto request);
+    VideoPageResponse getLiveVideos(String cursor, int size);
+    VideoPageResponse getUserVideos(Long userId, String cursor, int size);
 }

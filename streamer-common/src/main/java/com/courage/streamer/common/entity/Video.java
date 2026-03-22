@@ -3,7 +3,6 @@ package com.courage.streamer.common.entity;
 import com.courage.streamer.common.enums.VideoStatus;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.data.jpa.repository.Lock;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -16,8 +15,8 @@ public class Video {
     @Id
     private UUID id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "created_by", nullable = false)
+    private Long createdBy;
 
     @Column(nullable = false)
     private String title;

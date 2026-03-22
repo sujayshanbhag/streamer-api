@@ -9,7 +9,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class VideoResponseDto {
+public class UploadResponseDto {
     private UUID videoId;
     private String uploadUrl;
 }

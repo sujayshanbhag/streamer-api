@@ -1,17 +1,15 @@
 package com.courage.streamer.api.controller;
 
-import com.courage.streamer.api.dto.VideoRequestDto;
-import com.courage.streamer.api.dto.VideoResponseDto;
+
+import com.courage.streamer.api.dto.VideoPageResponse;
 import com.courage.streamer.api.service.VideoService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/video")
+@RequestMapping("/videos")
 public class VideoController {
 
     private final VideoService videoService;
@@ -20,10 +18,23 @@ public class VideoController {
         this.videoService = videoService;
     }
 
-    @PostMapping("/upload")
-    public ResponseEntity<VideoResponseDto> initiateUpload(@RequestBody VideoRequestDto request) {
-        VideoResponseDto response = videoService.initiateUpload(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+
+    @GetMapping
+    public ResponseEntity<VideoPageResponse> getLiveVideos(
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size,
+            @RequestParam(value = "cursor", required = false) String cursor
+    ) {
+        return ResponseEntity.ok(videoService.getLiveVideos(cursor, size));
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<VideoPageResponse> getUserVideos(
+            @PathVariable("userId") Long userId,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size,
+            @RequestParam(value = "cursor", required = false) String cursor
+    ) {
+        return ResponseEntity.ok(videoService.getUserVideos(userId, cursor, size));
     }
 }
 
