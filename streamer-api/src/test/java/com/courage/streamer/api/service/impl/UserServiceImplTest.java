@@ -3,6 +3,7 @@ package com.courage.streamer.api.service.impl;
 import com.courage.streamer.api.exception.AuthenticationException;
 import com.courage.streamer.common.entity.User;
 import com.courage.streamer.common.repository.UserRepository;
+import com.courage.streamer.common.repository.VideoRepository;
 import com.courage.streamer.api.service.UserService;
 import com.courage.streamer.api.strategy.auth.AuthenticationResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,11 +18,13 @@ class UserServiceImplTest {
 
     private UserService userService;
     private UserRepository userRepository;
+    private VideoRepository videoRepository;
 
     @BeforeEach
     void setUp() {
         userRepository = mock(UserRepository.class);
-        userService = new UserServiceImpl(userRepository);
+        videoRepository = mock(VideoRepository.class);
+        userService = new UserServiceImpl(userRepository, videoRepository);
     }
 
     @Test

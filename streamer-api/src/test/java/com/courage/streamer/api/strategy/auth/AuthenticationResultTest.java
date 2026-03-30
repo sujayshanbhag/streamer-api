@@ -1,7 +1,6 @@
 package com.courage.streamer.api.strategy.auth;
 
 import com.courage.streamer.api.constant.AuthenticationStatus;
-import com.courage.streamer.api.strategy.auth.AuthenticationResult;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
