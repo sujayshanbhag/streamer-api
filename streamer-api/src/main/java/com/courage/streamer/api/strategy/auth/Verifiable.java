@@ -13,7 +13,7 @@ import lombok.Getter;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
 @JsonSubTypes({
         @Type(value = GoogleAuthenticationInput.class, name = "GOOGLE"),
-        @Type(value = OtpAuthenticationInput.class, name = "OTP"),
+//        @Type(value = OtpAuthenticationInput.class, name = "OTP"),
         @Type(value = GithubAuthenticationInput.class, name = "GITHUB")
 })
 public abstract class Verifiable {

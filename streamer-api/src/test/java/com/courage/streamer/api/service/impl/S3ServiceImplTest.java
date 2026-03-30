@@ -74,7 +74,7 @@ class S3ServiceImplTest {
                 (Consumer<PutObjectPresignRequest.Builder>) any(Consumer.class)))
                 .thenReturn(presignedRequest);
 
-        String url = s3Service.generatePresignedUrl(UUID.randomUUID(), "test.mp4");
+        String url = s3Service.generatePresignedUrl(UUID.randomUUID(), "test.mp4", "video/mp4");
 
         assertEquals("http://example.com", url);
     }
@@ -85,7 +85,7 @@ class S3ServiceImplTest {
         doThrow(new RuntimeException("Presign error"))
                 .when(s3Presigner).presignPutObject(any(PutObjectPresignRequest.class));
         // Act & Assert
-        CustomS3Exception exception = assertThrows(CustomS3Exception.class, () -> s3Service.generatePresignedUrl(UUID.randomUUID(), "test.mp4"));
+        CustomS3Exception exception = assertThrows(CustomS3Exception.class, () -> s3Service.generatePresignedUrl(UUID.randomUUID(), "test.mp4", "video/mp4"  ));
         assertTrue(exception.getMessage().contains("Failed to generate presigned URL"));
     }
 }

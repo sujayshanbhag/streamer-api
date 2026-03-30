@@ -9,14 +9,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GithubAuthenticationInput  extends Verifiable {
-    private String token;
+    private String authorizationCode;
 
     public GithubAuthenticationInput() {
         super(AuthenticationType.GITHUB);
     }
     @JsonCreator
-    public GithubAuthenticationInput(String token) {
+    public GithubAuthenticationInput(String authorizationCode) {
         super(AuthenticationType.GITHUB);
-        this.token = token;
+        this.authorizationCode = authorizationCode;
     }
 }

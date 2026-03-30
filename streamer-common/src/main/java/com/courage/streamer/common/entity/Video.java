@@ -24,8 +24,8 @@ public class Video {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "original_file_name", nullable = false)
-    private String originalFileName;
+    @Column(name = "thumbnail_key")
+    private String thumbnailKey;
 
     @Enumerated(EnumType.STRING)
     private VideoStatus status;

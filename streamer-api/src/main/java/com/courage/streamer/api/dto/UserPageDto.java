@@ -1,16 +1,14 @@
 package com.courage.streamer.api.dto;
 
+import com.courage.streamer.common.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UploadResponseDto {
-    private UUID videoId;
-    private String videoSignedUrl;
-    private String thumbnailSignedUrl;
+public class UserPageDto {
+        private User user;
+        private VideoPageResponse videos;
 }

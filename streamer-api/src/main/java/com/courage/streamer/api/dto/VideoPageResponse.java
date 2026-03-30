@@ -1,5 +1,6 @@
 package com.courage.streamer.api.dto;
 
+import com.courage.streamer.common.dto.VideoDto;
 import com.courage.streamer.common.entity.Video;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VideoPageResponse {
-    private List<Video> videos;
+    private List<VideoDto> videos;
     private String nextCursor;
     private boolean hasNextPage;
 }

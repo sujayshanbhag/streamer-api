@@ -32,6 +32,8 @@ oauth:
     client-id: ${GOOGLE_CLIENT_ID}
   github:
     client-id: ${GITHUB_CLIENT_ID}
+    secret: ${GITHUB_CLIENT_SECRET}
+    redirect-uri: ${GITHUB_REDIRECT_URL}
 
 
 management:
@@ -46,3 +48,10 @@ aws:
     secret-key: ${S3_BUCKET_SECRET_KEY}
     region: ${S3_BUCKET_REGION}
     bucket-name: ${S3_BUCKET_NAME}
+  cloudfront:
+    domain: ${CLOUDFRONT_DOMAIN}
+    key-pair-id: ${CLOUDFRONT_KEY_PAIR_ID}
+    private-key-path: ${CLOUDFRONT_PRIVATE_KEY_PATH}
+
+app:
+  domain: ${APP_DOMAIN}

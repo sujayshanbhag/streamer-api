@@ -1,5 +1,6 @@
 package com.courage.streamer.common.repository;
 
+import com.courage.streamer.common.dto.VideoDto;
 import com.courage.streamer.common.entity.Video;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,28 +21,60 @@ public interface VideoRepository extends JpaRepository<Video, UUID> {
     Optional<Video> findByIdForUpdate(@Param("id") UUID id);
 
     @Query(value = """
-    SELECT * FROM video
-    WHERE status = 'LIVE'
-    AND (CAST(:cursor as timestamp) IS NULL OR created_at < :cursor)
-    ORDER BY created_at DESC
-    LIMIT :size
-    """, nativeQuery = true)
-    List<Video> findLiveWithCursor(
+    SELECT new com.courage.streamer.common.dto.VideoDto(
+        v.id, v.title, v.description, v.thumbnailKey, v.status, v.createdBy, u.name, v.createdAt
+    )
+    FROM Video v
+    JOIN User u ON v.createdBy = u.id
+    WHERE v.status = 'LIVE'
+    AND (CAST(:cursor AS timestamp) IS NULL OR v.createdAt < :cursor)
+    ORDER BY v.createdAt DESC
+""")
+    List<VideoDto> findLiveWithCursor(
             @Param("cursor") Instant cursor,
             @Param("size") int size
     );
 
     @Query(value = """
-    SELECT * FROM video
-    WHERE created_by = :userId
-    AND (CAST(:cursor AS timestamp) IS NULL OR created_at < :cursor)
-    ORDER BY created_at DESC 
-    LIMIT :size
-    """, nativeQuery = true)
-    List<Video> findByUserIdWithCursor(
+        SELECT new com.courage.streamer.common.dto.VideoDto(
+            v.id, v.title, v.description, v.thumbnailKey, v.status, v.createdBy, u.name, v.createdAt
+        )
+        FROM Video v
+        JOIN User u ON v.createdBy = u.id
+        WHERE v.createdBy = :userId
+        AND (CAST(:cursor AS timestamp) IS NULL OR v.createdAt < :cursor)
+        ORDER BY v.createdAt DESC
+    """)
+    List<VideoDto> findByUserIdWithCursor(
             @Param("userId") Long userId,
             @Param("cursor") Instant cursor,
             @Param("size") int size
     );
 
+    @Query("""
+    SELECT new com.courage.streamer.common.dto.VideoDto(
+        v.id, v.title, v.description, v.thumbnailKey, v.status, v.createdBy, u.name, v.createdAt
+    )
+    FROM Video v
+    JOIN User u ON v.createdBy = u.id
+    WHERE v.createdBy = :userId
+    AND v.status = 'LIVE'
+    AND (CAST(:cursor AS timestamp) IS NULL OR v.createdAt < :cursor)
+    ORDER BY v.createdAt DESC
+""")
+    List<VideoDto> findLiveByUserIdWithCursor(
+            @Param("userId") Long userId,
+            @Param("cursor") Instant cursor,
+            @Param("size") int size
+    );
+
+    @Query("""
+    SELECT new com.courage.streamer.common.dto.VideoDto(
+        v.id, v.title, v.description, v.thumbnailKey, v.status, v.createdBy, u.name, v.createdAt
+    )
+    FROM Video v
+    JOIN User u ON v.createdBy = u.id
+    WHERE v.id = :id
+""")
+    Optional<VideoDto> findVideoById(@Param("id") UUID id);
 }

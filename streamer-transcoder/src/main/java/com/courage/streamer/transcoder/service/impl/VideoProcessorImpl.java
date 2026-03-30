@@ -78,7 +78,7 @@ public class VideoProcessorImpl implements VideoProcessor {
             transcoderService.transcode(inputPath, outputPath);
 
             // 3. Upload
-            String s3OutputPrefix = "processed/" + fileNameWithoutExt;
+            String s3OutputPrefix = "processed/" + stagingId;
             uploadDirectory(outputPathFile, outputPath, s3OutputPrefix);
 
             System.out.println("Transcoding and upload completed for: " + key);

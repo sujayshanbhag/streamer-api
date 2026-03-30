@@ -7,4 +7,5 @@ public class UploadRequestDto {
     private String title;
     private String description;
     private String fileName;
+    private String thumbnail;
 }

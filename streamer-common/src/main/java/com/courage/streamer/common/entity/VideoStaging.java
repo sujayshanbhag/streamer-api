@@ -27,8 +27,8 @@ public class VideoStaging {
     private String description;
 
 
-    @Column(name = "original_file_name", nullable = false)
-    private String originalFileName;
+    @Column(name = "thumbnail_key")
+    private String thumbnailKey;
 
     @Column(name = "created_at")
     private final Instant createdAt = Instant.now();

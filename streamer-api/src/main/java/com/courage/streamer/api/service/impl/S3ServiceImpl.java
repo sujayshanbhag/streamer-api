@@ -12,6 +12,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+
 import java.time.Duration;
 import java.util.UUID;
 
@@ -20,13 +21,9 @@ import java.util.UUID;
 public class S3ServiceImpl implements S3Service {
 
     private final S3Client s3Client;
-
     private final S3Presigner s3Presigner;
-
     private final String bucketName;
-
-    private final static long EXPIRATION_MILI = 900_000; // 15 minutes
-
+    private static final long EXPIRATION_MILI = 900_000; // 15 minutes
 
     @Autowired
     public S3ServiceImpl(
@@ -44,29 +41,44 @@ public class S3ServiceImpl implements S3Service {
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
                 .build();
-        
+
         this.bucketName = bucketName;
     }
 
     @Override
-    public String generatePresignedUrl(UUID uuid, String fileName) {
-        String key = generateKey(uuid, fileName);
+    public String generatePresignedUrl(UUID uuid, String fileName, String contentType) {
+        String key = generateKey("uploads", uuid, fileName);
+        return generatePresignedUrl(key, contentType);
+    }
+
+    @Override
+    public String generateVideoUploadUrl(UUID uuid, String fileName) {
+        String key = generateKey("uploads", uuid, fileName);
+        return generatePresignedUrl(key, "video/mp4");
+    }
+
+    @Override
+    public String generateImageUploadUrl(UUID uuid, String fileName) {
+        String key = generateKey("thumbnails", uuid, fileName);
+        return generatePresignedUrl(key, "image/jpeg");
+    }
+
+    private String generatePresignedUrl(String key, String contentType) {
         try {
             PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(builder -> builder
                     .signatureDuration(Duration.ofMillis(EXPIRATION_MILI))
                     .putObjectRequest(por -> por
                             .bucket(bucketName)
                             .key(key)
-                            .contentType("video/mp4")));
+                            .contentType(contentType)));
             return presignedRequest.url().toString();
         } catch (Exception e) {
             throw new CustomS3Exception("Failed to generate presigned URL: " + e.getMessage(), e);
         }
     }
 
-    private String generateKey(UUID uuid, String fileName) {
+    private String generateKey(String folder, UUID uuid, String fileName) {
         String sanitized = fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
-        return "uploads/" + sanitized.substring(0, sanitized.lastIndexOf(".")) + "_" + uuid + sanitized.substring(sanitized.lastIndexOf("."));
+        return folder + "/" + sanitized.substring(0, sanitized.lastIndexOf(".")) + "_" + uuid + sanitized.substring(sanitized.lastIndexOf("."));
     }
-
 }

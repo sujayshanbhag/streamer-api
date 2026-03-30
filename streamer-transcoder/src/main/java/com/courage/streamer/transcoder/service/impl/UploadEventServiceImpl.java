@@ -69,12 +69,12 @@ public class UploadEventServiceImpl implements UploadEventService {
         video.setCreatedBy(staging.getCreatedBy());
         video.setTitle(staging.getTitle());
         video.setDescription(staging.getDescription());
-        video.setOriginalFileName(staging.getOriginalFileName());
         video.setStatus(VideoStatus.UPLOADED);
+        video.setThumbnailKey(staging.getThumbnailKey());
         video.setCreatedAt(createdAt);
         videoRepository.save(video);
         System.out.println("Video metadata saved: " + stagingId);
-        TranscoderMessage transcoderMessage = new TranscoderMessage(staging.getCreatedBy(), staging.getId(), staging.getTitle(), staging.getDescription(),  key, staging.getOriginalFileName());
+        TranscoderMessage transcoderMessage = new TranscoderMessage(staging.getCreatedBy(), staging.getId(), staging.getTitle(), staging.getDescription(),  key);
         sqsTemplate.send(transcoderQueueUrl, objectMapper.writeValueAsString(transcoderMessage));
         System.out.println("Transcoder message sent to SQS: " + stagingId);
     }
