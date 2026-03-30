@@ -11,7 +11,7 @@ spring:
           jwt:
             secret: *jwt-secret
   datasource:
-    url: jdbc:postgresql://localhost:5432/tinyflix?TimeZone=UTC
+    url: jdbc:postgresql://host.docker.internal:5432/tinyflix?TimeZone=UTC
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: postgres
