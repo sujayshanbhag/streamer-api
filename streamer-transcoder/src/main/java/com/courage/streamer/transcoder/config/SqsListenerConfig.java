@@ -14,8 +14,8 @@ public class SqsListenerConfig {
         return SqsMessageListenerContainerFactory
                 .builder()
                 .configure(options -> options
-                        .maxConcurrentMessages(1)
-                        .maxMessagesPerPoll(1)
+                        .maxConcurrentMessages(2)
+                        .maxMessagesPerPoll(2)
                         .messageAttributeNames(Collections.singletonList("All"))
                 )
                 .sqsAsyncClient(sqsAsyncClient)

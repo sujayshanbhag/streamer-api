@@ -1,3 +1,7 @@
+server:
+  servlet:
+    context-path: /api/v1
+
 jwt:
   secret: &jwt-secret ${JWT_SECRET}
   key-id: my-key-id
@@ -11,10 +15,10 @@ spring:
           jwt:
             secret: *jwt-secret
   datasource:
-    url: jdbc:postgresql://host.docker.internal:5432/tinyflix?TimeZone=UTC
+    url: ${DB_URL}
     driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: postgres
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update

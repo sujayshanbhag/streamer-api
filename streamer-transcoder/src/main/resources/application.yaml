@@ -13,10 +13,10 @@ spring:
   application:
     name: streamer-api
   datasource:
-    url: jdbc:postgresql://host.docker.internal:5432/tinyflix?Timezone=UTC
+    url: ${DB_URL}
     driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: postgres
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update

@@ -27,10 +27,10 @@ public class JwtTokenValidationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String requestUri = request.getRequestURI();
+        String servletPath = request.getServletPath();
         AntPathMatcher pathMatcher = new AntPathMatcher();
         return bypassUrlsConfig.getUrls().stream()
-                .anyMatch(pattern -> pathMatcher.match(pattern, requestUri));
+                .anyMatch(pattern -> pathMatcher.match(pattern, servletPath));
     }
 
     @Override
@@ -38,13 +38,7 @@ public class JwtTokenValidationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Unauthorized - token invalid");
-            return;
-        }
-
-        if (authentication.getPrincipal() instanceof Jwt jwt) {
+        if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
             Long userId = Long.valueOf(jwt.getSubject());
             String version = jwt.getClaimAsString("ver");
 

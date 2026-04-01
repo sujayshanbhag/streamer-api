@@ -49,6 +49,7 @@ public class TranscoderServiceImpl implements TranscoderService {
                         .addExtraArgs("-hls_list_size", "0")
                         .addExtraArgs("-hls_segment_filename", resolutionOutputDir + "/segment_%03d.ts")
                         .addExtraArgs("-vf", "scale=" + scale)
+                        .addExtraArgs("-threads","2")
                         .done();
 
                 FFmpegExecutor executor = new FFmpegExecutor(ffmpeg, ffprobe);
