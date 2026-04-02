@@ -1,0 +1,71 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Checkout SCM') {
+            steps {
+                    checkout scm
+            }
+        }
+
+        stage('Build & Test') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('Read Version') {
+            steps {
+                script {
+                    env.APP_VERSION = sh(
+                        script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout",
+                        returnStdout: true
+                    ).trim()
+                    echo "Building version: ${env.APP_VERSION}"
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                // Replace streamer-api with the actual name of your GitHub repository
+                sh """
+                    docker build \\
+                        --label "org.opencontainers.image.source=https://github.com/sujayshanbhag/streamer-api" \\
+                        -t ghcr.io/sujayshanbhag/streamer-api:${env.APP_VERSION} ./streamer-api
+                        
+                    docker build \\
+                        --label "org.opencontainers.image.source=https://github.com/sujayshanbhag/streamer-api" \\
+                        -t ghcr.io/sujayshanbhag/streamer-transcoder:${env.APP_VERSION} ./streamer-transcoder
+                """
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'ghcr-credentials',
+                    usernameVariable: 'GHCR_USER',
+                    passwordVariable: 'GHCR_TOKEN'
+                )]) {
+                    sh """
+                        echo $GHCR_TOKEN | docker login ghcr.io -u $GHCR_USER --password-stdin
+                        docker push ghcr.io/sujayshanbhag/streamer-api:${env.APP_VERSION}
+                        docker push ghcr.io/sujayshanbhag/streamer-transcoder:${env.APP_VERSION}
+                        docker logout
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Version ${env.APP_VERSION} pushed to GHCR successfully!"
+        }
+        failure {
+            echo "❌ Pipeline failed — check console output."
+        }
+    }
+}

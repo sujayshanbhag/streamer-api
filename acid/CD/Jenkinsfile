@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+    
+    parameters {
+            string(name: 'APP_VERSION', defaultValue: 'latest', description: 'Version of the Docker image to deploy')
+    }
+    
+    stages {
+
+        stage('Checkout SCM') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Deploy to VM') {
+            steps {
+                withCredentials([
+                    sshUserPrivateKey(credentialsId: 'vm-ssh-credentials', keyFileVariable: 'SSH_KEY'),
+                    file(credentialsId: 'app-env-file', variable: 'ENV_FILE')
+                ]) {
+                    sh """
+                        cp \$ENV_FILE /tmp/.env
+                        cp acid/docker-compose.yml /tmp/docker-compose.yml
+
+                        sed -i "s|APP_VERSION|${APP_VERSION}|g" /tmp/docker-compose.yml
+
+                        ssh -i \$SSH_KEY -o StrictHostKeyChecking=no jenkins@82.180.144.15 "mkdir -p /opt/tinyflix"
+
+                        scp -i \$SSH_KEY -o StrictHostKeyChecking=no /tmp/.env jenkins@82.180.144.15:/opt/tinyflix/.env
+                        scp -i \$SSH_KEY -o StrictHostKeyChecking=no /tmp/docker-compose.yml jenkins@82.180.144.15:/opt/tinyflix/docker-compose.yml
+
+                        ssh -i \$SSH_KEY -o StrictHostKeyChecking=no jenkins@82.180.144.15 "cd /opt/tinyflix && docker compose pull && docker compose up -d --remove-orphans"
+
+                        rm -f /tmp/.env /tmp/docker-compose.yml
+                    """
+                }
+            }
+        }
+    }
+}
