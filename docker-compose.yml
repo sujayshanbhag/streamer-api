@@ -45,7 +45,7 @@ services:
       - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
 
   streamer-transcoder:
-    image: ghcr.io/sujayshanbhag/transcoder-service:APP_VERSION
+    image: ghcr.io/sujayshanbhag/streamer-transcoder:APP_VERSION
     container_name: streamer-transcoder
     restart: unless-stopped
     networks:
