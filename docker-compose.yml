@@ -1,17 +1,61 @@
-version: db/v1
+version: "3.8"
 
 services:
-  postgres:
-    image: postgres:15
-    container_name: postgres-db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: tinyflix
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.le.acme.httpchallenge=true"
+      - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.le.acme.email=sujay.shanbhag999@gmail.com"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
     ports:
-      - "5432:5432"
+      - "80:80"
+      - "443:443"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "letsencrypt:/letsencrypt"
+    networks:
+      - app-network
+
+  streamer-api:
+    image: ghcr.io/sujayshanbhag/streamer-api:APP_VERSION
+    container_name: streamer-api
+    restart: unless-stopped
+    networks:
+      - app-network
+    env_file:
+      - .env
+    labels:
+      - "traefik.enable=true"
+      # HTTPS — all requests go to API
+      - "traefik.http.routers.api.rule=Host(`api.tinyflix.shanbhag.dev`)"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls.certresolver=le"
+      - "traefik.http.services.api.loadbalancer.server.port=8080"
+      # HTTP → HTTPS redirect
+      - "traefik.http.routers.api-http.rule=Host(`api.tinyflix.shanbhag.dev`)"
+      - "traefik.http.routers.api-http.entrypoints=web"
+      - "traefik.http.routers.api-http.middlewares=https-redirect"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+
+  streamer-transcoder:
+    image: ghcr.io/sujayshanbhag/transcoder-service:APP_VERSION
+    container_name: streamer-transcoder
+    restart: unless-stopped
+    networks:
+      - app-network
+    env_file:
+      - .env
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
-  postgres_data:
+  letsencrypt:
