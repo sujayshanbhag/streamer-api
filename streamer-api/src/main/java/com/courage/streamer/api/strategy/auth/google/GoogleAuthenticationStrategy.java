@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class GoogleAuthenticationStrategy extends BaseAuthenticationStrategy<GoogleAuthenticationInput> {
 
@@ -46,8 +49,8 @@ public class GoogleAuthenticationStrategy extends BaseAuthenticationStrategy<Goo
                     .build();
 
         } catch (Exception e) {
-            return AuthenticationResult.failed("Unknown Google auth error: "+ e.getMessage());
-
+            log.error("Google authentication failed", e);
+            return AuthenticationResult.failed("Unknown Google auth error: " + e.getMessage());
         }
     }
 }

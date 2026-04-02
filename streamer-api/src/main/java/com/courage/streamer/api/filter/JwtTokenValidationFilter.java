@@ -15,8 +15,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class JwtTokenValidationFilter extends OncePerRequestFilter {
+
     private final UserAuthorizationService userAuthorizationService;
     private final BypassUrlsConfig bypassUrlsConfig;
 
@@ -43,12 +47,14 @@ public class JwtTokenValidationFilter extends OncePerRequestFilter {
             String version = jwt.getClaimAsString("ver");
 
             if (!userAuthorizationService.isUserActive(userId)) {
+                log.warn("Access denied - inactive user, userId: {}", userId);
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.getWriter().write("Forbidden user");
                 return;
             }
 
             if (!userAuthorizationService.validate(userId, version)) {
+                log.warn("Access denied - invalid token version, userId: {}", userId);
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Unauthorized - token invalid");
                 return;

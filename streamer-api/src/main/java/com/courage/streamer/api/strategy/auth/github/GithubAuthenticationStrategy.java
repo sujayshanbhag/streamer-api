@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class GithubAuthenticationStrategy extends BaseAuthenticationStrategy<GithubAuthenticationInput> {
 
@@ -45,6 +48,7 @@ public class GithubAuthenticationStrategy extends BaseAuthenticationStrategy<Git
                     .status(AuthenticationStatus.SUCCESS)
                     .build();
         } catch (IOException e) {
+            log.error("GitHub authentication failed", e);
             return AuthenticationResult.failed("Unknown GitHub auth error");
         }
     }

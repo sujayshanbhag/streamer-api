@@ -9,6 +9,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class JwtServiceImpl implements JwtService {
 
@@ -69,6 +72,7 @@ public class JwtServiceImpl implements JwtService {
             // Check if the token type is "refresh" and not expired
             return "refresh".equals(tokenType) && expiration.isAfter(Instant.now());
         } catch (Exception e) {
+            log.warn("Refresh token validation failed", e);
             return false; // Invalid token
         }
     }

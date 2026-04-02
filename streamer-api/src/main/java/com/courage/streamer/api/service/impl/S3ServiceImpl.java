@@ -16,6 +16,9 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 import java.time.Duration;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @AllArgsConstructor
 @Service
 public class S3ServiceImpl implements S3Service {
@@ -73,6 +76,7 @@ public class S3ServiceImpl implements S3Service {
                             .contentType(contentType)));
             return presignedRequest.url().toString();
         } catch (Exception e) {
+            log.error("Failed to generate presigned URL for key: {}", key, e);
             throw new CustomS3Exception("Failed to generate presigned URL: " + e.getMessage(), e);
         }
     }

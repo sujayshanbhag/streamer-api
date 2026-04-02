@@ -14,8 +14,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class UserContextFilter extends OncePerRequestFilter {
+
     private final UserService userService;
 
     public UserContextFilter(UserService userService) {
@@ -35,7 +39,8 @@ public class UserContextFilter extends OncePerRequestFilter {
             }
 
             filterChain.doFilter(request, response);
-        }catch (Exception e) {
+        } catch (Exception e) {
+            log.error("Error processing user context", e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("An error occurred while processing the user context.");
         } finally {

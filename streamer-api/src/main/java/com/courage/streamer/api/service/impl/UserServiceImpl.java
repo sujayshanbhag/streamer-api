@@ -18,6 +18,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -41,6 +44,7 @@ public class UserServiceImpl implements UserService {
             newUser.setIsActive(true);
             return userRepository.save(newUser);
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            log.warn("Duplicate user registration attempt for email: {}", authResult.getEmail(), e);
             throw new AuthenticationException("User with this email already exists");
         }
     }
