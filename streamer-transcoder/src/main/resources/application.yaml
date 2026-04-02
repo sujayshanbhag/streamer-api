@@ -24,8 +24,8 @@ spring:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
 
 # application-local.properties
-ffmpeg.path: /usr/bin/ffmpeg
-ffprobe.path: /usr/bin/ffprobe
+ffmpeg.path: ${FFMPEG_PATH}
+ffprobe.path: ${FFPROBE_PATH}
 
 sqs:
   transcoder:

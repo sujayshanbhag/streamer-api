@@ -3,7 +3,7 @@ server:
     context-path: /api/v1
 
 jwt:
-  secret: &jwt-secret ${JWT_SECRET}
+  secret: ${JWT_SECRET}
   key-id: my-key-id
 
 spring:
@@ -13,7 +13,7 @@ spring:
       oauth2:
         resourceserver:
           jwt:
-            secret: *jwt-secret
+            secret: ${JWT_SECRET}
   datasource:
     url: ${DB_URL}
     driver-class-name: org.postgresql.Driver
@@ -48,9 +48,9 @@ management:
 
 aws:
   s3:
-    access-key: ${S3_BUCKET_ACCESS_KEY}
-    secret-key: ${S3_BUCKET_SECRET_KEY}
-    region: ${S3_BUCKET_REGION}
+    access-key: ${AWS_ACCESS_KEY}
+    secret-key: ${AWS_SECRET_KEY}
+    region: ${AWS_REGION}
     bucket-name: ${S3_BUCKET_NAME}
   cloudfront:
     domain: ${CLOUDFRONT_DOMAIN}

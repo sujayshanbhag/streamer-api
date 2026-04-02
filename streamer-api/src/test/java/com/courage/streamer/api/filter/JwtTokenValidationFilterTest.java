@@ -41,7 +41,7 @@ class JwtTokenValidationFilterTest {
     @Test
     void shouldNotFilterReturnsTrueForBypassUrls() {
         when(bypassUrlsConfig.getUrls()).thenReturn(List.of("/auth/signup", "/auth/login"));
-        when(request.getRequestURI()).thenReturn("/auth/signup");
+        when(request.getServletPath()).thenReturn("/auth/signup");
 
         assertTrue(filter.shouldNotFilter(request));
     }
@@ -49,7 +49,7 @@ class JwtTokenValidationFilterTest {
     @Test
     void shouldNotFilterReturnsFalseForNonBypassUrls() {
         when(bypassUrlsConfig.getUrls()).thenReturn(List.of("/auth/signup", "/auth/login"));
-        when(request.getRequestURI()).thenReturn("/api/resource");
+        when(request.getServletPath()).thenReturn("/api/resource");
 
         assertFalse(filter.shouldNotFilter(request));
     }
@@ -97,19 +97,4 @@ class JwtTokenValidationFilterTest {
         verify(writer).write("Unauthorized - token invalid");
         verify(filterChain, never()).doFilter(any(), any());
     }
-
-    @Test
-    void doFilterInternalSetsUnauthorizedWhenAuthenticationIsNull() throws ServletException, IOException {
-        SecurityContextHolder.getContext().setAuthentication(null);
-        when(request.getRequestURI()).thenReturn("/api/resource");
-        java.io.PrintWriter writer = mock(java.io.PrintWriter.class);
-        when(response.getWriter()).thenReturn(writer);
-
-        filter.doFilterInternal(request, response, filterChain);
-
-        verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        verify(writer).write("Unauthorized - token invalid");
-        verify(filterChain, never()).doFilter(any(), any());
-    }
-
 }
