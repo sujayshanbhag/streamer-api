@@ -31,6 +31,8 @@ services:
       - app-network
     env_file:
       - .env
+    volumes:
+      - /opt/tinyflix/secrets:/opt/tinyflix/secrets:ro
     labels:
       - "traefik.enable=true"
       # HTTPS — all requests go to API
