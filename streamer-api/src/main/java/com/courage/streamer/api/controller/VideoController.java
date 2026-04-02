@@ -6,7 +6,7 @@ import com.courage.streamer.common.dto.VideoDto;
 import com.courage.streamer.api.dto.VideoPageResponse;
 import com.courage.streamer.api.service.CloudfrontService;
 import com.courage.streamer.api.service.VideoService;
-import com.google.api.client.util.Value;
+import org.springframework.beans.factory.annotation.Value;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -70,7 +70,7 @@ public class VideoController {
     }
 
     private void addCookie(HttpServletResponse response, String headerValue) {
-        String cookieString = headerValue + "; Path=/; HttpOnly; SameSite=Lax; Max-Age=3600";
+        String cookieString = headerValue + "; Path=/; HttpOnly; SameSite=None; Max-Age=3600";
 
         if (domain != null && !domain.isBlank() && !domain.equals("localhost")) {
             cookieString += "; Domain=" + domain + "; Secure";
