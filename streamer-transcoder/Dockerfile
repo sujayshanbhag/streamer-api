@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 # Copy the JAR file into the container
-COPY streamer-transcoder/target/streamer-transcoder.jar app.jar
+COPY target/*.jar app.jar
 
 # Expose the port the Transcoder service runs on
 EXPOSE 8081

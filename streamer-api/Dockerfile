@@ -5,7 +5,7 @@ FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
 # Copy the JAR file into the container
-COPY streamer-api/target/streamer-api.jar app.jar
+COPY target/*.jar app.jar
 
 
 # Expose the port the API runs on
