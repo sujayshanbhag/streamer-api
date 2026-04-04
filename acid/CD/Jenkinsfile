@@ -2,8 +2,9 @@ pipeline {
     agent any
     
     parameters {
-            string(name: 'APP_VERSION', defaultValue: 'latest', description: 'Version of the Docker image to deploy')
-    }
+            string(name: 'APP_VERSION', defaultValue: '1.0.0', description: 'API + Transcoder image version')
+            string(name: 'UI_VERSION', defaultValue: '1.0.0', description: 'UI image version')
+        }
     
     stages {
 
@@ -23,7 +24,9 @@ pipeline {
                         cp \$ENV_FILE /tmp/.env
                         cp acid/docker-compose.yml /tmp/docker-compose.yml
 
-                        sed -i "s|APP_VERSION|${APP_VERSION}|g" /tmp/docker-compose.yml
+                        sed -i "s|APP_VERSION|${params.APP_VERSION}|g" /tmp/docker-compose.yml
+
+                        sed -i "s|UI_VERSION|${params.UI_VERSION}|g" /tmp/docker-compose.yml
 
                         ssh -i \$SSH_KEY -o StrictHostKeyChecking=no jenkins@82.180.144.15 "mkdir -p /opt/tinyflix"
 
