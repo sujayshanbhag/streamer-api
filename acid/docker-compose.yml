@@ -51,6 +51,8 @@ services:
     image: ghcr.io/sujayshanbhag/streamer-ui:UI_VERSION
     container_name: streamer-ui
     restart: unless-stopped
+    env_file:
+      - .env
     networks:
       - app-network
     labels:
