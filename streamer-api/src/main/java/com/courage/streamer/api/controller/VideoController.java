@@ -1,6 +1,7 @@
 package com.courage.streamer.api.controller;
 
 
+import com.courage.streamer.api.dto.AccountPageDto;
 import com.courage.streamer.api.dto.StreamResponseDto;
 import com.courage.streamer.common.dto.VideoDto;
 import com.courage.streamer.api.dto.VideoPageResponse;
@@ -32,19 +33,21 @@ public class VideoController {
 
     @GetMapping
     public ResponseEntity<VideoPageResponse> getLiveVideos(
+            @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size,
             @RequestParam(value = "cursor", required = false) String cursor
     ) {
-        return ResponseEntity.ok(videoService.getLiveVideos(cursor, size));
+        return ResponseEntity.ok(videoService.getLiveVideos(keyword, cursor, size));
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<VideoPageResponse> getUserVideos(
+    public ResponseEntity<AccountPageDto> getUserVideos(
             @PathVariable("userId") Long userId,
+            @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size,
             @RequestParam(value = "cursor", required = false) String cursor
     ) {
-        return ResponseEntity.ok(videoService.getUserVideos(userId, cursor, size));
+        return ResponseEntity.ok(videoService.getUserVideos(keyword, userId, cursor, size));
     }
 
     @GetMapping("/stream/{videoId}")

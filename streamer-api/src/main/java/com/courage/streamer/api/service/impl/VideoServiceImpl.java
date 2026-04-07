@@ -1,9 +1,7 @@
 package com.courage.streamer.api.service.impl;
 
 import com.courage.streamer.api.context.UserContext;
-import com.courage.streamer.api.dto.UploadRequestDto;
-import com.courage.streamer.api.dto.UploadResponseDto;
-import com.courage.streamer.api.dto.VideoPageResponse;
+import com.courage.streamer.api.dto.*;
 import com.courage.streamer.api.service.S3Service;
 import com.courage.streamer.api.service.VideoService;
 import com.courage.streamer.common.dto.VideoDto;
@@ -11,6 +9,7 @@ import com.courage.streamer.common.entity.User;
 import com.courage.streamer.common.entity.VideoStaging;
 import com.courage.streamer.common.repository.VideoRepository;
 import com.courage.streamer.common.repository.VideoStagingRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -57,15 +56,29 @@ public class VideoServiceImpl  implements VideoService {
         return new UploadResponseDto(stagingId, signedUrl, thumbnailSignedUrl);
     }
 
-    public VideoPageResponse getUserVideos(Long userId, String cursorStr, int size) {
+    @Override
+    public AccountPageDto getUserVideos(String key, Long userId, String cursorStr, int size) {
         Instant cursor = cursorStr != null ? Instant.parse(cursorStr) : null;
-        List<VideoDto> videos = videoRepository.findByUserIdWithCursor(userId, cursor, size);
-        return buildPageResponse(videos, size);
+        List<VideoDto> videos;
+        if(key != null && !key.isEmpty()) {
+            videos = videoRepository.findByUserIdAndKeyWithCursor(userId, key, cursor, Pageable.ofSize(size + 1));
+        } else {
+            videos = videoRepository.findLiveByUserIdWithCursor(userId, cursor, Pageable.ofSize(size + 1));
+        }
+        Long count = videoRepository.countByCreatedBy(userId);
+        return new AccountPageDto(count, buildPageResponse(videos, size));
     }
 
-    public VideoPageResponse getLiveVideos(String cursorStr, int size) {
+    public VideoPageResponse getLiveVideos(String keyword, String cursorStr, int size) {
+        List<VideoDto> videos;
         Instant cursor = cursorStr != null ? Instant.parse(cursorStr) : null;
-        List<VideoDto> videos = videoRepository.findLiveWithCursor(cursor, size);
+        if(keyword != null && !keyword.isEmpty()) {
+            videos = videoRepository.findLiveByTitleOrDescription(keyword, cursor, Pageable.ofSize(size + 1));
+
+        } else {
+            videos = videoRepository.findLiveWithCursor(cursor, Pageable.ofSize(size + 1));
+
+        }
         return buildPageResponse(videos, size);
     }
 
