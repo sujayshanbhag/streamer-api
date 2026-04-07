@@ -97,7 +97,7 @@ class VideoServiceImplTest {
         VideoDto video = new VideoDto();
         video.setCreatedAt(Instant.now());
 
-        when(videoRepository.findLiveByUserIdWithCursor(eq(1L), isNull(), any(Pageable.class)))
+        when(videoRepository.findByUserIdWithCursor(eq(1L), isNull(), any(Pageable.class)))
                 .thenReturn(List.of(video));
         when(videoRepository.countByCreatedBy(1L)).thenReturn(1L);
 
@@ -117,7 +117,7 @@ class VideoServiceImplTest {
         VideoDto v2 = new VideoDto();
         v2.setCreatedAt(now.minusSeconds(20));
 
-        when(videoRepository.findLiveByUserIdWithCursor(eq(1L), isNull(), any(Pageable.class)))
+        when(videoRepository.findByUserIdWithCursor(eq(1L), isNull(), any(Pageable.class)))
                 .thenReturn(List.of(v1, v2));
         when(videoRepository.countByCreatedBy(1L)).thenReturn(5L);
 
@@ -136,14 +136,14 @@ class VideoServiceImplTest {
         VideoDto video = new VideoDto();
         video.setCreatedAt(cursor.minusSeconds(5));
 
-        when(videoRepository.findLiveByUserIdWithCursor(eq(1L), eq(cursor), any(Pageable.class)))
+        when(videoRepository.findByUserIdWithCursor(eq(1L), eq(cursor), any(Pageable.class)))
                 .thenReturn(List.of(video));
         when(videoRepository.countByCreatedBy(1L)).thenReturn(1L);
 
         AccountPageDto response = videoService.getUserVideos(null, 1L, cursorStr, 10);
 
         assertEquals(1, response.getVideos().getVideos().size());
-        verify(videoRepository).findLiveByUserIdWithCursor(eq(1L), eq(cursor), any(Pageable.class));
+        verify(videoRepository).findByUserIdWithCursor(eq(1L), eq(cursor), any(Pageable.class));
     }
 
     @Test
@@ -160,18 +160,18 @@ class VideoServiceImplTest {
         assertEquals(1, response.getVideos().getVideos().size());
         assertEquals(3L, response.getTotalVideos());
         verify(videoRepository).findByUserIdAndKeyWithCursor(eq(1L), eq("music"), isNull(), any(Pageable.class));
-        verify(videoRepository, never()).findLiveByUserIdWithCursor(anyLong(), any(), any(Pageable.class));
+        verify(videoRepository, never()).findByUserIdWithCursor(anyLong(), any(), any(Pageable.class));
     }
 
     @Test
     void getUserVideosRequestsPageSizePlusOne() {
-        when(videoRepository.findLiveByUserIdWithCursor(eq(1L), isNull(), argThat(p -> p.getPageSize() == 6)))
+        when(videoRepository.findByUserIdWithCursor(eq(1L), isNull(), argThat(p -> p.getPageSize() == 6)))
                 .thenReturn(List.of());
         when(videoRepository.countByCreatedBy(1L)).thenReturn(0L);
 
         videoService.getUserVideos(null, 1L, null, 5);
 
-        verify(videoRepository).findLiveByUserIdWithCursor(eq(1L), isNull(), argThat(p -> p.getPageSize() == 6));
+        verify(videoRepository).findByUserIdWithCursor(eq(1L), isNull(), argThat(p -> p.getPageSize() == 6));
     }
 
     @Test
