@@ -1,17 +1,24 @@
 package com.courage.streamer.api.service.impl;
 
+import com.courage.streamer.api.dto.UserPageDto;
 import com.courage.streamer.api.exception.AuthenticationException;
+import com.courage.streamer.common.dto.VideoDto;
 import com.courage.streamer.common.entity.User;
+import com.courage.streamer.common.enums.VideoStatus;
 import com.courage.streamer.common.repository.UserRepository;
 import com.courage.streamer.common.repository.VideoRepository;
 import com.courage.streamer.api.service.UserService;
 import com.courage.streamer.api.strategy.auth.AuthenticationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Pageable;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class UserServiceImplTest {
@@ -94,5 +101,112 @@ class UserServiceImplTest {
 
         assertFalse(foundUser.isPresent());
         verify(userRepository).findByEmail(email);
+    }
+
+    @Test
+    void getUserDetailsWithLiveVideosReturnsSinglePageWhenResultsWithinSize() {
+        User user = new User();
+        user.setId(42L);
+        user.setName("Alice");
+
+        VideoDto video = new VideoDto();
+        video.setCreatedAt(Instant.parse("2024-06-01T10:00:00Z"));
+
+        when(userRepository.findById(42L)).thenReturn(Optional.of(user));
+        when(videoRepository.findLiveByUserIdWithCursor(eq(42L), isNull(), any(Pageable.class)))
+                .thenReturn(List.of(video));
+        when(videoRepository.countByCreatedByAndStatus(42L, VideoStatus.LIVE)).thenReturn(1L);
+
+        UserPageDto result = userService.getUserDetailsWithLiveVideos(42L, null, 10);
+
+        assertEquals(user, result.getUser());
+        assertEquals(1L, result.getTotalVideos());
+        assertEquals(1, result.getVideos().getVideos().size());
+        assertFalse(result.getVideos().isHasNextPage());
+        assertNull(result.getVideos().getNextCursor());
+    }
+
+    @Test
+    void getUserDetailsWithLiveVideosReturnsHasNextPageWhenMoreResultsThanSize() {
+        User user = new User();
+        user.setId(42L);
+
+        Instant t1 = Instant.parse("2024-06-01T10:00:00Z");
+        Instant t2 = Instant.parse("2024-06-01T09:00:00Z");
+        VideoDto v1 = new VideoDto();
+        v1.setCreatedAt(t1);
+        VideoDto v2 = new VideoDto();
+        v2.setCreatedAt(t2);
+
+        when(userRepository.findById(42L)).thenReturn(Optional.of(user));
+        when(videoRepository.findLiveByUserIdWithCursor(eq(42L), isNull(), any(Pageable.class)))
+                .thenReturn(List.of(v1, v2));
+        when(videoRepository.countByCreatedByAndStatus(42L, VideoStatus.LIVE)).thenReturn(5L);
+
+        UserPageDto result = userService.getUserDetailsWithLiveVideos(42L, null, 1);
+
+        assertEquals(1, result.getVideos().getVideos().size());
+        assertTrue(result.getVideos().isHasNextPage());
+        assertEquals(t1.toString(), result.getVideos().getNextCursor());
+        assertEquals(5L, result.getTotalVideos());
+    }
+
+    @Test
+    void getUserDetailsWithLiveVideosParsesCursorString() {
+        User user = new User();
+        user.setId(42L);
+        String cursorStr = "2024-03-15T08:00:00Z";
+        Instant cursor = Instant.parse(cursorStr);
+
+        when(userRepository.findById(42L)).thenReturn(Optional.of(user));
+        when(videoRepository.findLiveByUserIdWithCursor(eq(42L), eq(cursor), any(Pageable.class)))
+                .thenReturn(List.of());
+        when(videoRepository.countByCreatedByAndStatus(42L, VideoStatus.LIVE)).thenReturn(0L);
+
+        UserPageDto result = userService.getUserDetailsWithLiveVideos(42L, cursorStr, 10);
+
+        assertNotNull(result);
+        verify(videoRepository).findLiveByUserIdWithCursor(eq(42L), eq(cursor), any(Pageable.class));
+    }
+
+    @Test
+    void getUserDetailsWithLiveVideosRequestsPageSizePlusOne() {
+        User user = new User();
+        user.setId(42L);
+
+        when(userRepository.findById(42L)).thenReturn(Optional.of(user));
+        when(videoRepository.findLiveByUserIdWithCursor(eq(42L), isNull(), argThat(p -> p.getPageSize() == 6)))
+                .thenReturn(List.of());
+        when(videoRepository.countByCreatedByAndStatus(42L, VideoStatus.LIVE)).thenReturn(0L);
+
+        userService.getUserDetailsWithLiveVideos(42L, null, 5);
+
+        verify(videoRepository).findLiveByUserIdWithCursor(eq(42L), isNull(), argThat(p -> p.getPageSize() == 6));
+    }
+
+    @Test
+    void getUserDetailsWithLiveVideosThrowsWhenUserNotFound() {
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> userService.getUserDetailsWithLiveVideos(99L, null, 10));
+
+        verify(videoRepository, never()).findLiveByUserIdWithCursor(anyLong(), any(), any(Pageable.class));
+    }
+
+    @Test
+    void getUserDetailsWithLiveVideosCountsOnlyLiveVideos() {
+        User user = new User();
+        user.setId(42L);
+
+        when(userRepository.findById(42L)).thenReturn(Optional.of(user));
+        when(videoRepository.findLiveByUserIdWithCursor(eq(42L), isNull(), any(Pageable.class)))
+                .thenReturn(List.of());
+        when(videoRepository.countByCreatedByAndStatus(42L, VideoStatus.LIVE)).thenReturn(7L);
+
+        UserPageDto result = userService.getUserDetailsWithLiveVideos(42L, null, 10);
+
+        assertEquals(7L, result.getTotalVideos());
+        verify(videoRepository).countByCreatedByAndStatus(42L, VideoStatus.LIVE);
     }
 }

@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserPageDto {
         private User user;
+        private Long totalVideos;
         private VideoPageResponse videos;
 }

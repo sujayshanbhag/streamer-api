@@ -5,11 +5,10 @@
     <parent>
         <groupId>com.courage</groupId>
         <artifactId>video-streamer</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath> <!-- relative to root -->
     </parent>
     <artifactId>streamer-api</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
     <name>streamer-api</name>
     <description>API for Streaming application</description>
     <url/>
@@ -116,7 +115,7 @@
         <dependency>
             <groupId>com.courage</groupId>
             <artifactId>streamer-common</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
 
     </dependencies>

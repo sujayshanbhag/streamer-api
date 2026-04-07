@@ -1,6 +1,7 @@
 package com.courage.streamer.api.service.impl;
 
 import com.courage.streamer.api.context.UserContext;
+import com.courage.streamer.api.dto.AccountPageDto;
 import com.courage.streamer.api.dto.UploadRequestDto;
 import com.courage.streamer.api.dto.UploadResponseDto;
 import com.courage.streamer.api.dto.VideoPageResponse;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import org.springframework.data.domain.Pageable;
 
 import java.time.Instant;
 import java.util.List;
@@ -21,7 +23,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class VideoServiceImplTest {
@@ -95,14 +97,16 @@ class VideoServiceImplTest {
         VideoDto video = new VideoDto();
         video.setCreatedAt(Instant.now());
 
-        when(videoRepository.findByUserIdWithCursor(eq(1L), isNull(), eq(10)))
+        when(videoRepository.findLiveByUserIdWithCursor(eq(1L), isNull(), any(Pageable.class)))
                 .thenReturn(List.of(video));
+        when(videoRepository.countByCreatedBy(1L)).thenReturn(1L);
 
-        VideoPageResponse response = videoService.getUserVideos(1L, null, 10);
+        AccountPageDto response = videoService.getUserVideos(null, 1L, null, 10);
 
-        assertEquals(1, response.getVideos().size());
-        assertFalse(response.isHasNextPage());
-        assertNull(response.getNextCursor());
+        assertEquals(1, response.getVideos().getVideos().size());
+        assertFalse(response.getVideos().isHasNextPage());
+        assertNull(response.getVideos().getNextCursor());
+        assertEquals(1L, response.getTotalVideos());
     }
 
     @Test
@@ -113,15 +117,61 @@ class VideoServiceImplTest {
         VideoDto v2 = new VideoDto();
         v2.setCreatedAt(now.minusSeconds(20));
 
-        // repository returns size+1 items to signal there's a next page
-        when(videoRepository.findByUserIdWithCursor(eq(1L), isNull(), eq(1)))
+        when(videoRepository.findLiveByUserIdWithCursor(eq(1L), isNull(), any(Pageable.class)))
                 .thenReturn(List.of(v1, v2));
+        when(videoRepository.countByCreatedBy(1L)).thenReturn(5L);
 
-        VideoPageResponse response = videoService.getUserVideos(1L, null, 1);
+        AccountPageDto response = videoService.getUserVideos(null, 1L, null, 1);
 
-        assertEquals(1, response.getVideos().size());
-        assertTrue(response.isHasNextPage());
-        assertNotNull(response.getNextCursor());
+        assertEquals(1, response.getVideos().getVideos().size());
+        assertTrue(response.getVideos().isHasNextPage());
+        assertEquals(v1.getCreatedAt().toString(), response.getVideos().getNextCursor());
+        assertEquals(5L, response.getTotalVideos());
+    }
+
+    @Test
+    void getUserVideosWithCursorParsesCursorString() {
+        String cursorStr = "2024-06-01T12:00:00Z";
+        Instant cursor = Instant.parse(cursorStr);
+        VideoDto video = new VideoDto();
+        video.setCreatedAt(cursor.minusSeconds(5));
+
+        when(videoRepository.findLiveByUserIdWithCursor(eq(1L), eq(cursor), any(Pageable.class)))
+                .thenReturn(List.of(video));
+        when(videoRepository.countByCreatedBy(1L)).thenReturn(1L);
+
+        AccountPageDto response = videoService.getUserVideos(null, 1L, cursorStr, 10);
+
+        assertEquals(1, response.getVideos().getVideos().size());
+        verify(videoRepository).findLiveByUserIdWithCursor(eq(1L), eq(cursor), any(Pageable.class));
+    }
+
+    @Test
+    void getUserVideosWithKeywordUsesKeySearchQuery() {
+        VideoDto video = new VideoDto();
+        video.setCreatedAt(Instant.now());
+
+        when(videoRepository.findByUserIdAndKeyWithCursor(eq(1L), eq("music"), isNull(), any(Pageable.class)))
+                .thenReturn(List.of(video));
+        when(videoRepository.countByCreatedBy(1L)).thenReturn(3L);
+
+        AccountPageDto response = videoService.getUserVideos("music", 1L, null, 10);
+
+        assertEquals(1, response.getVideos().getVideos().size());
+        assertEquals(3L, response.getTotalVideos());
+        verify(videoRepository).findByUserIdAndKeyWithCursor(eq(1L), eq("music"), isNull(), any(Pageable.class));
+        verify(videoRepository, never()).findLiveByUserIdWithCursor(anyLong(), any(), any(Pageable.class));
+    }
+
+    @Test
+    void getUserVideosRequestsPageSizePlusOne() {
+        when(videoRepository.findLiveByUserIdWithCursor(eq(1L), isNull(), argThat(p -> p.getPageSize() == 6)))
+                .thenReturn(List.of());
+        when(videoRepository.countByCreatedBy(1L)).thenReturn(0L);
+
+        videoService.getUserVideos(null, 1L, null, 5);
+
+        verify(videoRepository).findLiveByUserIdWithCursor(eq(1L), isNull(), argThat(p -> p.getPageSize() == 6));
     }
 
     @Test
@@ -129,12 +179,31 @@ class VideoServiceImplTest {
         VideoDto video = new VideoDto();
         video.setCreatedAt(Instant.now());
 
-        when(videoRepository.findLiveWithCursor(isNull(), eq(10))).thenReturn(List.of(video));
+        // service passes size+1 to the repository
+        when(videoRepository.findLiveWithCursor(isNull(), any(Pageable.class))).thenReturn(List.of(video));
 
-        VideoPageResponse response = videoService.getLiveVideos(null, 10);
+        VideoPageResponse response = videoService.getLiveVideos(null, null, 10);
 
         assertEquals(1, response.getVideos().size());
         assertFalse(response.isHasNextPage());
+        assertNull(response.getNextCursor());
+    }
+
+    @Test
+    void getLiveVideosReturnsHasNextPageWhenMoreResultsThanSize() {
+        Instant now = Instant.now();
+        VideoDto v1 = new VideoDto();
+        v1.setCreatedAt(now.minusSeconds(1));
+        VideoDto v2 = new VideoDto();
+        v2.setCreatedAt(now.minusSeconds(2));
+
+        when(videoRepository.findLiveWithCursor(isNull(), any(Pageable.class))).thenReturn(List.of(v1, v2));
+
+        VideoPageResponse response = videoService.getLiveVideos(null, null, 1);
+
+        assertEquals(1, response.getVideos().size());
+        assertTrue(response.isHasNextPage());
+        assertEquals(v1.getCreatedAt().toString(), response.getNextCursor());
     }
 
     @Test
@@ -142,12 +211,38 @@ class VideoServiceImplTest {
         String cursorStr = "2024-01-01T00:00:00Z";
         Instant cursor = Instant.parse(cursorStr);
 
-        when(videoRepository.findLiveWithCursor(eq(cursor), eq(10))).thenReturn(List.of());
+        when(videoRepository.findLiveWithCursor(eq(cursor), any(Pageable.class))).thenReturn(List.of());
 
-        VideoPageResponse response = videoService.getLiveVideos(cursorStr, 10);
+        VideoPageResponse response = videoService.getLiveVideos(null, cursorStr, 10);
 
         assertNotNull(response);
-        verify(videoRepository).findLiveWithCursor(cursor, 10);
+        verify(videoRepository).findLiveWithCursor(eq(cursor), any(Pageable.class));
+    }
+
+    @Test
+    void getLiveVideosWithKeywordUsesDescriptionSearch() {
+        VideoDto video = new VideoDto();
+        video.setCreatedAt(Instant.now());
+
+        when(videoRepository.findLiveByTitleOrDescription(eq("news"), isNull(), any(Pageable.class)))
+                .thenReturn(List.of(video));
+
+        VideoPageResponse response = videoService.getLiveVideos("news", null, 10);
+
+        assertEquals(1, response.getVideos().size());
+        assertFalse(response.isHasNextPage());
+        verify(videoRepository).findLiveByTitleOrDescription(eq("news"), isNull(), any(Pageable.class));
+        verify(videoRepository, never()).findLiveWithCursor(any(), any(Pageable.class));
+    }
+
+    @Test
+    void getLiveVideosRequestsPageSizePlusOne() {
+        when(videoRepository.findLiveWithCursor(isNull(), argThat(p -> p.getPageSize() == 6)))
+                .thenReturn(List.of());
+
+        videoService.getLiveVideos(null, null, 5);
+
+        verify(videoRepository).findLiveWithCursor(isNull(), argThat(p -> p.getPageSize() == 6));
     }
 
     @Test

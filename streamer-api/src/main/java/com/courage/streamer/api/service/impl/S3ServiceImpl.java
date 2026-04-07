@@ -73,7 +73,8 @@ public class S3ServiceImpl implements S3Service {
                     .putObjectRequest(por -> por
                             .bucket(bucketName)
                             .key(key)
-                            .contentType(contentType)));
+                            .contentType(contentType)
+                            .contentLength(2L * 1024 * 1024 * 1024)));
             return presignedRequest.url().toString();
         } catch (Exception e) {
             log.error("Failed to generate presigned URL for key: {}", key, e);

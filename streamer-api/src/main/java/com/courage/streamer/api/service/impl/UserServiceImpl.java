@@ -8,10 +8,12 @@ import com.courage.streamer.common.dto.VideoDto;
 import com.courage.streamer.common.entity.User;
 import com.courage.streamer.common.entity.UserPermission;
 import com.courage.streamer.common.entity.Video;
+import com.courage.streamer.common.enums.VideoStatus;
 import com.courage.streamer.common.exception.enums.PermissionType;
 import com.courage.streamer.common.repository.UserRepository;
 import com.courage.streamer.api.service.UserService;
 import com.courage.streamer.common.repository.VideoRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -66,7 +68,8 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         Instant cursor = cursorStr != null ? Instant.parse(cursorStr) : null;
-        List<VideoDto> videos = videoRepository.findLiveByUserIdWithCursor(userId, cursor, size);
+        List<VideoDto> videos = videoRepository.findLiveByUserIdWithCursor(userId, cursor, Pageable.ofSize(size + 1));
+        long count = videoRepository.countByCreatedByAndStatus(userId, VideoStatus.LIVE);
 
         boolean hasNextPage = videos.size() > size;
         List<VideoDto> pageItems = hasNextPage ? videos.subList(0, size) : videos;
@@ -77,6 +80,6 @@ public class UserServiceImpl implements UserService {
 
         VideoPageResponse videoPageResponse = new VideoPageResponse(pageItems, nextCursor, hasNextPage);
 
-        return new UserPageDto(user, videoPageResponse);
+        return new UserPageDto(user, count, videoPageResponse);
     }
 }
