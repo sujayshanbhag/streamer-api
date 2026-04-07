@@ -63,7 +63,7 @@ public class VideoServiceImpl  implements VideoService {
         if(key != null && !key.isEmpty()) {
             videos = videoRepository.findByUserIdAndKeyWithCursor(userId, key, cursor, Pageable.ofSize(size + 1));
         } else {
-            videos = videoRepository.findLiveByUserIdWithCursor(userId, cursor, Pageable.ofSize(size + 1));
+            videos = videoRepository.findByUserIdWithCursor(userId, cursor, Pageable.ofSize(size + 1));
         }
         Long count = videoRepository.countByCreatedBy(userId);
         return new AccountPageDto(count, buildPageResponse(videos, size));
