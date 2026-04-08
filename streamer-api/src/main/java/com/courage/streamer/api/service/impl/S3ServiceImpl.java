@@ -81,7 +81,8 @@ public class S3ServiceImpl implements S3Service {
         }
     }
 
-    private String generateKey(String folder, UUID uuid, String fileName) {
+    @Override
+    public String generateKey(String folder, UUID uuid, String fileName) {
         String sanitized = fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
         return folder + "/" + sanitized.substring(0, sanitized.lastIndexOf(".")) + "_" + uuid + sanitized.substring(sanitized.lastIndexOf("."));
     }

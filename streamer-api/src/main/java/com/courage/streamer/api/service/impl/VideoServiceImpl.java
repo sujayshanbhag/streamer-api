@@ -40,8 +40,7 @@ public class VideoServiceImpl  implements VideoService {
         String thumbnailKey = null;
         if (request.getThumbnail() != null && !request.getThumbnail().isEmpty()) {
             thumbnailSignedUrl = s3Service.generateImageUploadUrl(stagingId, request.getThumbnail());
-            thumbnailKey = "thumbnails/" + request.getThumbnail().substring(0, request.getThumbnail().lastIndexOf('.'))
-                    + "_" + stagingId + request.getThumbnail().substring(request.getThumbnail().lastIndexOf('.'));
+            thumbnailKey= s3Service.generateKey("thumbnails", stagingId, request.getThumbnail());
         }
 
         VideoStaging staging = new VideoStaging();
