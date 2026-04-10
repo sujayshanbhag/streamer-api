@@ -6,39 +6,36 @@ import com.courage.streamer.api.strategy.auth.google.GoogleAuthenticationInput;
 import com.courage.streamer.api.strategy.auth.google.GoogleAuthenticationStrategy;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class GoogleAuthenticationStrategyTest {
 
-    private GoogleIdTokenVerifier verifier;
+    private GoogleIdToken mockIdToken;
     private GoogleAuthenticationStrategy strategy;
 
     @BeforeEach
-    void setUp() throws Exception {
-        verifier = mock(GoogleIdTokenVerifier.class);
-        strategy = new GoogleAuthenticationStrategy("mock-client-id");
-
-        // Use reflection to set the private final field
-        Field verifierField = GoogleAuthenticationStrategy.class.getDeclaredField("verifier");
-        verifierField.setAccessible(true);
-        verifierField.set(strategy, verifier);
+    void setUp() {
+        mockIdToken = mock(GoogleIdToken.class);
+        strategy = new GoogleAuthenticationStrategy("mock-client-id", "mock-client-secret") {
+            @Override
+            protected GoogleIdToken exchangeCodeForIdToken(String code, String redirectUri) throws Exception {
+                if ("valid-code".equals(code)) return mockIdToken;
+                if ("invalid-code".equals(code)) return null;
+                throw new RuntimeException("Verification error");
+            }
+        };
     }
 
     @Test
     void authenticateReturnsSuccessForValidToken() throws Exception {
-        GoogleAuthenticationInput input = new GoogleAuthenticationInput("valid-token");
-        GoogleIdToken idToken = mock(GoogleIdToken.class);
-        Payload payload = mock(Payload.class);
+        GoogleAuthenticationInput input = new GoogleAuthenticationInput("valid-code", "postmessage");
 
-        when(verifier.verify("valid-token")).thenReturn(idToken);
-        when(idToken.getPayload()).thenReturn(payload);
+        Payload payload = mock(Payload.class);
+        when(mockIdToken.getPayload()).thenReturn(payload);
         when(payload.get("name")).thenReturn("John Doe");
         when(payload.getEmail()).thenReturn("john.doe@example.com");
 
@@ -50,10 +47,8 @@ class GoogleAuthenticationStrategyTest {
     }
 
     @Test
-    void authenticateReturnsFailedForInvalidToken() throws Exception {
-        GoogleAuthenticationInput input = new GoogleAuthenticationInput("invalid-token");
-
-        when(verifier.verify("invalid-token")).thenReturn(null);
+    void authenticateReturnsFailedForInvalidToken() {
+        GoogleAuthenticationInput input = new GoogleAuthenticationInput("invalid-code", "postmessage");
 
         AuthenticationResult result = strategy.authenticate(input);
 
@@ -62,10 +57,8 @@ class GoogleAuthenticationStrategyTest {
     }
 
     @Test
-    void authenticateReturnsFailedForException() throws Exception {
-        GoogleAuthenticationInput input = new GoogleAuthenticationInput("exception-token");
-
-        when(verifier.verify("exception-token")).thenThrow(new RuntimeException("Verification error"));
+    void authenticateReturnsFailedForException() {
+        GoogleAuthenticationInput input = new GoogleAuthenticationInput("exception-code", "postmessage");
 
         AuthenticationResult result = strategy.authenticate(input);
 
