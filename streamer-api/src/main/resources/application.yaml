@@ -25,7 +25,6 @@ spring:
     properties:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
 
-
 bypass:
   urls:
     - /auth/**
@@ -34,11 +33,11 @@ bypass:
 oauth:
   google:
     client-id: ${GOOGLE_CLIENT_ID}
+    client-secret: ${GOOGLE_CLIENT_SECRET}
   github:
     client-id: ${GITHUB_CLIENT_ID}
     secret: ${GITHUB_CLIENT_SECRET}
     redirect-uri: ${GITHUB_REDIRECT_URL}
-
 
 management:
   endpoints:
