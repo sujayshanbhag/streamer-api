@@ -1,6 +1,8 @@
 package com.courage.streamer.api.service.impl;
 
+import com.courage.streamer.api.context.UserContext;
 import com.courage.streamer.api.dto.UserPageDto;
+import com.courage.streamer.api.dto.UserPermissionsDto;
 import com.courage.streamer.api.dto.VideoPageResponse;
 import com.courage.streamer.api.strategy.auth.AuthenticationResult;
 import com.courage.streamer.api.exception.AuthenticationException;
@@ -13,6 +15,7 @@ import com.courage.streamer.common.exception.enums.PermissionType;
 import com.courage.streamer.common.repository.UserRepository;
 import com.courage.streamer.api.service.UserService;
 import com.courage.streamer.common.repository.VideoRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -40,9 +43,14 @@ public class UserServiceImpl implements UserService {
             newUser.setName(authResult.getName());
             newUser.setEmail(authResult.getEmail());
             newUser.setPhoneNumber(authResult.getPhoneNumber());
-            var defaultPermission = new UserPermission();
-            defaultPermission.setType(PermissionType.VIEWER);
-            newUser.getPermissions().add(defaultPermission);
+            var viewerPermission = new UserPermission();
+            viewerPermission.setType(PermissionType.VIEWER);
+            newUser.getPermissions().add(viewerPermission);
+
+            // Also grant uploader permission by default
+            var uploaderPermission = new UserPermission();
+            uploaderPermission.setType(PermissionType.UPLOADER);
+            newUser.getPermissions().add(uploaderPermission);
             newUser.setIsActive(true);
             return userRepository.save(newUser);
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
@@ -65,7 +73,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserPageDto getUserDetailsWithLiveVideos(Long userId, String cursorStr, int size) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         Instant cursor = cursorStr != null ? Instant.parse(cursorStr) : null;
         List<VideoDto> videos = videoRepository.findLiveByUserIdWithCursor(userId, cursor, Pageable.ofSize(size + 1));
@@ -81,5 +89,27 @@ public class UserServiceImpl implements UserService {
         VideoPageResponse videoPageResponse = new VideoPageResponse(pageItems, nextCursor, hasNextPage);
 
         return new UserPageDto(user, count, videoPageResponse);
+    }
+
+    @Override
+    public User findOrCreateGuestUser() {
+        String guestEmail = "guest@guest.invalid";
+        return userRepository.findByEmail(guestEmail).orElseGet(() -> {
+            User g = new User();
+            g.setName("Guest");
+            g.setEmail(guestEmail);
+            g.setIsActive(true);
+            var viewerPermission = new UserPermission();
+            viewerPermission.setType(PermissionType.VIEWER);
+            g.getPermissions().add(viewerPermission);
+            return userRepository.save(g);
+        });
+    }
+
+    @Override
+    public UserPermissionsDto getCurrentUserPermissions() {
+        User user = UserContext.getCurrentUser();
+        List<PermissionType> permissions = user.getPermissions().stream().map(UserPermission::getType).toList();
+        return new UserPermissionsDto(user.getId(), "guest@guest.invalid".equals(user.getEmail()), permissions);
     }
 }

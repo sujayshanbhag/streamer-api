@@ -7,4 +7,5 @@ public interface AuthenticationService {
     TokenResponseDto register(Verifiable request);
     TokenResponseDto login(Verifiable request);
     TokenResponseDto refresh(String refreshToken);
+    TokenResponseDto guestLogin();
 }

@@ -12,8 +12,12 @@ import com.courage.streamer.api.exception.ForbiddenException;
 import com.courage.streamer.api.service.AuthenticationService;
 import com.courage.streamer.api.service.UserService;
 import com.courage.streamer.api.strategy.auth.AuthenticationStrategyProvider;
+
 import com.courage.streamer.common.entity.User;
 import org.springframework.stereotype.Service;
+
+import javax.security.auth.AuthPermission;
+import java.util.List;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -75,5 +79,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         return userAuthorizationService.refreshToken(refreshToken);
+    }
+
+    @Override
+    public TokenResponseDto guestLogin() {
+        User guest = userService.findOrCreateGuestUser();
+        return userAuthorizationService.authorize(guest);
     }
 }
