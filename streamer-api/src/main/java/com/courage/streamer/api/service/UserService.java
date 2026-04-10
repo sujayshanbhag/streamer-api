@@ -1,6 +1,7 @@
 package com.courage.streamer.api.service;
 
 import com.courage.streamer.api.dto.UserPageDto;
+import com.courage.streamer.api.dto.UserPermissionsDto;
 import com.courage.streamer.api.strategy.auth.AuthenticationResult;
 import com.courage.streamer.common.entity.User;
 
@@ -12,4 +13,6 @@ public interface UserService {
     Optional<User> findByEmail(String email);
     User findById(Long id);
     UserPageDto getUserDetailsWithLiveVideos(Long userId, String cursorStr, int size);
+    User findOrCreateGuestUser();
+    UserPermissionsDto getCurrentUserPermissions();
 }

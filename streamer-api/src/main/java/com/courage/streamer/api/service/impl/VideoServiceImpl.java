@@ -9,6 +9,7 @@ import com.courage.streamer.common.entity.User;
 import com.courage.streamer.common.entity.VideoStaging;
 import com.courage.streamer.common.repository.VideoRepository;
 import com.courage.streamer.common.repository.VideoStagingRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -95,6 +96,6 @@ public class VideoServiceImpl  implements VideoService {
     @Override
     public VideoDto findVideoById(UUID videoId) {
         return videoRepository.findVideoById(videoId)
-                .orElseThrow(() -> new RuntimeException("Video not found with id: " + videoId));
+                .orElseThrow(() -> new EntityNotFoundException("Video not found with id: " + videoId));
     }
 }

@@ -9,6 +9,7 @@ import com.courage.streamer.common.repository.UserRepository;
 import com.courage.streamer.common.repository.VideoRepository;
 import com.courage.streamer.api.service.UserService;
 import com.courage.streamer.api.strategy.auth.AuthenticationResult;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Pageable;
@@ -188,7 +189,7 @@ class UserServiceImplTest {
     void getUserDetailsWithLiveVideosThrowsWhenUserNotFound() {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(EntityNotFoundException.class,
                 () -> userService.getUserDetailsWithLiveVideos(99L, null, 10));
 
         verify(videoRepository, never()).findLiveByUserIdWithCursor(anyLong(), any(), any(Pageable.class));

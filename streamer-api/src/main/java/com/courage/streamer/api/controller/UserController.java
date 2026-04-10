@@ -1,6 +1,7 @@
 package com.courage.streamer.api.controller;
 
 import com.courage.streamer.api.dto.UserPageDto;
+import com.courage.streamer.api.dto.UserPermissionsDto;
 import com.courage.streamer.api.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,12 @@ public class UserController {
             @RequestParam(value = "cursor", required = false) String cursor
     ) {
         UserPageDto response = userService.getUserDetailsWithLiveVideos(userId, cursor, size);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserPermissionsDto> getCurrentUserDetailsWithLiveVideos() {
+        UserPermissionsDto response = userService.getCurrentUserPermissions();
         return ResponseEntity.ok(response);
     }
 }
