@@ -29,33 +29,35 @@ public class TranscoderServiceImpl implements TranscoderService {
 
     @Override
     public void transcode(String inputPath, String outputDir) throws IOException {
-            FFmpeg ffmpeg = new FFmpeg(ffmpegPath);
-            FFprobe ffprobe = new FFprobe(ffprobePath);
+        FFmpeg ffmpeg = new FFmpeg(ffmpegPath);
+        FFprobe ffprobe = new FFprobe(ffprobePath);
+        FFmpegExecutor executor = new FFmpegExecutor(ffmpeg, ffprobe);
 
-            for (Map.Entry<String, String> resolution : RESOLUTIONS.entrySet()) {
-                String label = resolution.getKey();
-                String scale = resolution.getValue();
-                String resolutionOutputDir = outputDir + "/" + label;
+        for (Map.Entry<String, String> resolution : RESOLUTIONS.entrySet()) {
+            String label = resolution.getKey();
+            String scale = resolution.getValue();
+            String resolutionOutputDir = outputDir + "/" + label;
 
-                // Create output directory
-                new File(resolutionOutputDir).mkdirs();
+            // Create output directory
+            new File(resolutionOutputDir).mkdirs();
 
-                FFmpegBuilder builder = new FFmpegBuilder()
-                        .setInput(inputPath)
-                        .overrideOutputFiles(true)
-                        .addOutput(resolutionOutputDir + "/index.m3u8")
-                        .setFormat("hls")
-                        .addExtraArgs("-hls_time", "10")
-                        .addExtraArgs("-hls_list_size", "0")
-                        .addExtraArgs("-hls_segment_filename", resolutionOutputDir + "/segment_%03d.ts")
-                        .addExtraArgs("-vf", "scale=" + scale)
-                        .addExtraArgs("-threads","2")
-                        .done();
+            FFmpegBuilder builder = new FFmpegBuilder()
+                    .addExtraArgs("-threads", "1")         // 1 decoder thread
+                    .setInput(inputPath)
+                    .overrideOutputFiles(true)
+                    .addOutput(resolutionOutputDir + "/index.m3u8")
+                    .setFormat("hls")
+                    .addExtraArgs("-hls_time", "10")
+                    .addExtraArgs("-hls_list_size", "0")
+                    .addExtraArgs("-hls_segment_filename", resolutionOutputDir + "/segment_%03d.ts")
+                    .addExtraArgs("-vf", "scale=" + scale)
+                    .addExtraArgs("-threads", "1")          // 1 encoder thread
+                    .addExtraArgs("-x264-params", "threads=1") // hard-cap libx264
+                    .done();
 
-                FFmpegExecutor executor = new FFmpegExecutor(ffmpeg, ffprobe);
-                executor.createJob(builder).run();
+            executor.createJob(builder).run();
 
-                System.out.println("Transcoded " + label + " successfully");
-            }
+            System.out.println("Transcoded " + label + " successfully");
+        }
     }
 }
