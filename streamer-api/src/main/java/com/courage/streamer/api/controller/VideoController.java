@@ -73,7 +73,7 @@ public class VideoController {
     }
 
     private void addCookie(HttpServletResponse response, String headerValue) {
-        String cookieString = headerValue + "; Path=/; HttpOnly; SameSite=None; Max-Age=3600";
+        String cookieString = headerValue + "; Path=/; HttpOnly; SameSite=Lax; Max-Age=3600";
 
         if (domain != null && !domain.isBlank() && !domain.equals("localhost")) {
             cookieString += "; Domain=" + domain + "; Secure";
